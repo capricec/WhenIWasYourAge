@@ -1,0 +1,21 @@
+{
+  "name": "svelte-atoms",
+  "version": "0.0.27",
+  "description": "Svelte UI kit based on Atol design",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/az67128/svelte-atoms.git"
+  },
+  "author": "Alexander Zinchenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/az67128/svelte-atoms/issues"
+  },
+  "homepage": "https://gitlab.com/az67128/svelte-atoms#readme",
+  "keywords": [
+    "svetle", "svelte ui kit", "ui", "ui kit", "sveltejs", "svelte components", "components library"
+]
+}

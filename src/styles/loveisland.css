@@ -1,0 +1,11 @@
+
+body{
+	background: white;
+	color: black;
+}
+	.ontop{
+		    background-image: url(/assets/beachbackground.jpg);
+		    background-attachment: fixed;
+		    background-position-y: 84%;
+		    background-position-x: center;
+	}

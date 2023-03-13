@@ -1,0 +1,1 @@
+export default "M2 0h12a2 2 0 012 2v12a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 2v12h12V2H2zm2 2h2v2H4zm0 2h2v2H4zm4-2h2v2H8zm0 4h2v2H8zM6 6h2v2H6zm4 0h2v2h-2zm0 2h2v2h-2zM6 8h2v2H6zm-2 2h2v2H4zm2 0h2v2H6zm4 0h2v2h-2z";
