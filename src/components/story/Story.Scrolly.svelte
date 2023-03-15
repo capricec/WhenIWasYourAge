@@ -6,14 +6,14 @@
 </script>
 
 <div id="scrolly" >
-	<Scrolly bind:value={$scrollState}>
+	<!--<Scrolly bind:value={$scrollState}>
 		{#each ['TA1a', 'TA1b', 'TA2a', 'TA2b', 'TA3a', 'TA3b','TA4a', 'TA4b', 'TA5a', 'TA5b', 'TA6a'] as text, i}
 			{@const active = $scrollState === i}
 			<div class="step scrollyLeft" class:active>
 				<p>{copy[text].plain} <span class="tagline"> {copy[text].tagline} </span> {copy[text].plain2}</p>
 			</div>
 		{/each}
-	</Scrolly>
+	</Scrolly>-->
 </div>
 
 <style>

@@ -20,7 +20,7 @@
 		font-size: 30px;
 		text-align: center;
 		color: var(--color-fg);
-		color: black;
+		color: white;
 	}
 
 	.wordmark a:hover {

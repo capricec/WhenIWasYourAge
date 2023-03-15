@@ -1,56 +1,61 @@
 <script>
 	import StoryScrolly from "$components/story/Story.Scrolly.svelte";
 	import copy from "$data/copy.json"
-	import BuildingChart from "$components/story/BuildingChart.svelte";
-	import SeasonSelect from "$components/story/SeasonSelect.svelte";
-	import BuildingSmallMultipleArcs from "$components/story/BuildingSmallMultipleArcs.svelte";
-	import SeasonsData from "$data/SeasonsData.csv";
 	import inView from "$actions/inView.js";
 	import { LayerCake, Svg } from "layercake";
+
+	var array = copy.List.split("?");
+	let scrollbox;
+
+	let startX = 0;
+	let count = 0;
+
+	 setInterval(() => {
+	 	if(scrollbox){
+	 		count ++;
+	 		if(count < 6){
+		    	const x = scrollbox.offsetWidth*count;
+			    scrollbox.scroll({
+			        left: x,
+			        top: 0,
+			        behavior: 'smooth'
+			    })
+			} else {
+				count = 0;
+				scrollbox.scroll({
+			        left: 0,
+			        top: 0,
+			        behavior: 'smooth'
+			    })
+			}
+		}
+	    
+	  }, 5000);
+
 
 </script>
 
 <div id="Intro" class = "ontop" >
-	<h1><span class = "boldheader">love</span>island </h1>
-	<h1>by the numbers </h1>
-	<p class = "subtitle">A data driven look at why we choose the couples that win Love Island</p>
+	<h1>When I Was Your Age...</h1>
+	<ul class="gallery" bind:this={scrollbox}>
+		{#each array as whenIwas}
+		<li>{whenIwas}</li>
+		{/each}
+	</ul>
 </div>
 <div id = "Content" >
 		<div class = "ontop">
 			<div class = "content-holder">
-				<p>{copy.Intro} </p>
+				<p>{copy.Intro1} </p>
 				<p>{copy.Intro2}</p>
 				<p>{copy.Intro3}</p>
+				<p>{copy.Intro4}</p>
+				<p>{copy.Intro5}</p>
 			</div>
 		</div>
 		<div class = "content-holder">
-			<div class = "stickyChart">
-				<SeasonSelect/>
-				<BuildingChart/>
-			</div>
 			<StoryScrolly/>
 			<div class="spacer" />
-		</div>
-		<div class = "ontop">
-			<div class = "content-holder end">
-				<p>{copy.Multiples} </p>
-				<div class = "multipleBox">
-					{#each SeasonsData as season}
-					<div class = "seasonSmallMultiple">
-					<p class = "seasonHeader">{season.Season_Name}</p>
-						<figure>
-							<LayerCake >
-								<Svg>
-									<BuildingSmallMultipleArcs value={season}/>
-								</Svg>
-							</LayerCake>
-						</figure>
-					</div>
-					{/each}
-				</div>
-				<p>{copy.Outro1} </p>
-				<p>{copy.Outro2}</p>
-			</div>
 		</div>
 </div>
 
@@ -62,16 +67,30 @@
 		margin-top: -30px;
 	}
 
-	.subtitle{
-		text-align:center;
-		margin-bottom: 0;
-		padding-bottom: 0;
-		height: auto;
+	.gallery {
+	padding: 1rem;
+	display: grid;
+	grid-template-columns: repeat(6, 100vw);
+	grid-template-rows: 1fr;
+	grid-row-gap: 1rem;
+	overflow: scroll;
+	scroll-snap-type: both mandatory;
+	color: white;
+	overflow-x: hidden;
 	}
 
-	.boldheader{
-		font-weight: 600;
+	li {
+		scroll-snap-align: center;
+		display: inline-block;
+		border-radius: 3px;
+		font-size: 20px;
+		padding: 0px 100px;
+		padding-left: calc(50% - 200px);
+		padding-right: calc(50% - 200px);
+		text-align: center;
 	}
+
+
 
 	.content-holder{
 		width: 40em;
@@ -92,44 +111,12 @@
 	}
 
 	#Intro{
-		padding-top: 100px;
+		padding-top: calc(50vh - 150px);
 		padding-bottom: 80px;
 		margin-bottom: -30px;
+		height: 100vh;
 	}
 
-	:global(#Content section) {
-		/*margin: 32px auto;*/
-		padding-top: 32px;
-	}
-
-	:global(#Content h2 span) {
-		background: var(--color-mark);
-		padding: 0 8px;
-	}
-
-	figure {
-		width: 200px;
-		height: 180px;
-		
-	}
-
-	.seasonHeader{
-		font-size: 12px;
-		text-align: center;
-
-	}
-
-	.seasonSmallMultiple{
-		display: inline-block;
-		margin-bottom: 80px;
-	}
-
-
-	.stickyChart {
-		position: sticky;
-		z-index: 0;
-		top: 1em;
-	}
 
 	.spacer {
 		height: 80vh;
@@ -142,16 +129,6 @@
 				margin: auto;
 				padding-bottom: 80px;
 			}
-
-		.subtitle{
-			padding: 20px 20px;
-		}
-
-		.seasonSmallMultiple{
-			display: inline-block;
-		    margin: auto;
-		    margin-left: calc(50% - 100px);
-		}
 
 
 	}
