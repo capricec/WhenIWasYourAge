@@ -1,8 +1,8 @@
 <script>
-	export let title = "What Can Love Island Tell Us About Love";
-	export let description = "A data driven look at why we choose the couples that win Love Island";
+	export let title = "When I Was Your Age";
+	export let description = "A data driven look at what it was really like back then";
 	export let url = "https://originaldatum.com/";
-	export let keywords = "Love Island";
+	export let keywords = "Generations";
 	export let preloadFont = [];
 </script>
 
