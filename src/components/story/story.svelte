@@ -99,18 +99,22 @@
 		padding-bottom: 80px;
 	}
 
+	.content-holder p {
+		margin-bottom: 20px;
+	}
+
 	.content-holder.end{
 		padding-top: 80px;
 	}
 
 	#Content, #Intro {
-		font-family: "Tiempos Text Web";
 		padding: 16px;
 		margin: 0;
 		padding: 0;
 	}
 
 	#Intro{
+		font-family: "Tiempos Text Web";
 		padding-top: calc(50vh - 150px);
 		padding-bottom: 80px;
 		margin-bottom: -30px;

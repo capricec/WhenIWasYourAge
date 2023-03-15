@@ -6,23 +6,18 @@
 </script>
 
 <div id="scrolly" >
-	<!--<Scrolly bind:value={$scrollState}>
-		{#each ['TA1a', 'TA1b', 'TA2a', 'TA2b', 'TA3a', 'TA3b','TA4a', 'TA4b', 'TA5a', 'TA5b', 'TA6a'] as text, i}
+	<Scrolly bind:value={$scrollState}>
+		{#each ['Scroll1', 'Scroll2', 'Scroll3', 'Scroll4', 'Scroll5', 'Scroll6'] as text, i}
 			{@const active = $scrollState === i}
 			<div class="step scrollyLeft" class:active>
-				<p>{copy[text].plain} <span class="tagline"> {copy[text].tagline} </span> {copy[text].plain2}</p>
+				<p>{copy.Scrolly[text]}</p>
 			</div>
 		{/each}
-	</Scrolly>-->
+	</Scrolly>
 </div>
 
 <style>
 
-	.tagline{
-		background-color: #8f2d56;
-		color: white;
-		padding-left: 0px;
-	}
 
 	.step {
 		height: 80vh;
@@ -36,11 +31,11 @@
 		position: relative;
 		width: 60%;
 		right: 0;
-		background: white;
-		border: 1px solid pink;
+		background: black;
+		border: 1px solid white;
 		padding: 20px;
 		z-index: 10;
-		box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+		/*box-shadow: 0 3px 10px rgb(255 255 255 / 0.2);*/
 	}
 
 
@@ -53,9 +48,9 @@
 		height: auto;
 		margin-bottom: 80vh;
 		width: auto;
-		background: white;
+		background: black;
 		padding: 10px;
-		box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+		/*box-shadow: 0 3px 10px rgb(255 255 255 / 0.2);*/
 	}
 	}
 

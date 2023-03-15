@@ -19,8 +19,9 @@
 
 	const { title, description, url, keywords } = copy;
 	setContext("copy", copy);
-	setContext("singlesData", data.SinglesData);
-	setContext("couplesData", data.CouplesData);
+	setContext("IncomePercent", data.IncomePercent);
+	setContext("RawPercentage", data.RawPercentage);
+	setContext("ZScores", data.ZScores);
 
 </script>
 
