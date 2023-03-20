@@ -1,5 +1,6 @@
 <script>
 	import StoryScrolly from "$components/story/Story.Scrolly.svelte";
+	import BuildingChart from "$components/story/BuildingChart.svelte";
 	import copy from "$data/copy.json"
 	import inView from "$actions/inView.js";
 	import { LayerCake, Svg } from "layercake";
@@ -45,7 +46,7 @@
 </div>
 <div id = "Content" >
 		<div class = "ontop">
-			<div class = "content-holder">
+			<div class = "content-holder content-text">
 				<p>{copy.Intro1} </p>
 				<p>{copy.Intro2}</p>
 				<p>{copy.Intro3}</p>
@@ -54,6 +55,9 @@
 			</div>
 		</div>
 		<div class = "content-holder">
+			<div class = "stickyChart">
+				<BuildingChart/>
+			</div>
 			<StoryScrolly/>
 			<div class="spacer" />
 		</div>
@@ -63,11 +67,13 @@
 
 
 	h1{
-		text-align:center;
-		margin-top: -30px;
+		text-align:left;
+		margin-top: -20px;
+		margin-left: 40px;
 	}
 
 	.gallery {
+	margin-top: -20px;
 	padding: 1rem;
 	display: grid;
 	grid-template-columns: repeat(6, 100vw);
@@ -85,18 +91,27 @@
 		border-radius: 3px;
 		font-size: 20px;
 		padding: 0px 100px;
-		padding-left: calc(50% - 200px);
+		padding-left: 40px;
 		padding-right: calc(50% - 200px);
-		text-align: center;
+		text-align: left;
+	}
+
+	.stickyChart {
+		position: sticky;
+		z-index: 0;
+		top: 1em;
 	}
 
 
 
 	.content-holder{
-		width: 40em;
 		padding: auto;
-		margin: auto;
+		margin: 0px 40px;
 		padding-bottom: 80px;
+	}
+
+	.content-text{
+		width: 40em;
 	}
 
 	.content-holder p {

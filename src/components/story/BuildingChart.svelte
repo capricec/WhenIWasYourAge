@@ -1,28 +1,28 @@
 <script>
 	import { LayerCake, Svg } from "layercake";
-	import BuildingArcs from "$components/story/BuildingArcs.svelte";
+	import RadialChart from "$components/story/RadialChart.svelte";
  
  
 </script>
 	<figure>
 		<LayerCake >
 			<Svg>
-				<BuildingArcs/>
+				<RadialChart/>
 			</Svg>
 		</LayerCake>
 	</figure>
 
 <style>
 	figure {
-		width: 650px;
-		height: 500px;
+		width: 1000px;
+		height: 700px;
 	}
 
 	@media (max-width: 600px) {
 	 figure {
-	 	margin-left:10px;
-		width: 250px;
-		height: 250px;
+	 	margin: auto;
+		width: 350px;
+		height: 600px;
 		}
 	}
 </style>
