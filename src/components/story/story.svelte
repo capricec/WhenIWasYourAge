@@ -52,6 +52,7 @@
 				<p>{copy.Intro3}</p>
 				<p>{copy.Intro4}</p>
 				<p>{copy.Intro5}</p>
+				<p>{copy.Intro6}</p>
 			</div>
 		</div>
 		<div class = "content-holder">
@@ -107,7 +108,7 @@
 	.content-holder{
 		padding: auto;
 		margin: 0px 40px;
-		padding-bottom: 80px;
+		padding-bottom: 40px;
 	}
 
 	.content-text{

@@ -7,7 +7,7 @@
 
 <div id="scrolly" >
 	<Scrolly bind:value={$scrollState}>
-		{#each ['Scroll1', 'Scroll2', 'Scroll3', 'Scroll4', 'Scroll5', 'Scroll6'] as text, i}
+		{#each ['Scroll1', 'Scroll2', 'Scroll3', 'Scroll4', 'Scroll5', 'Scroll6', 'Scroll7', 'Scroll8', 'Scroll9'] as text, i}
 			{@const active = $scrollState === i}
 			<div class="step scrollyLeft" class:active>
 				<p>{copy.Scrolly[text]}</p>
@@ -30,11 +30,12 @@
 		margin-bottom: 80vh;
 		position: relative;
 		width: 60%;
-		right: 0;
+		margin-left: calc(40%);
 		background: black;
 		border: 1px solid white;
 		padding: 20px;
 		z-index: 10;
+		text-align: left;
 		/*box-shadow: 0 3px 10px rgb(255 255 255 / 0.2);*/
 	}
 

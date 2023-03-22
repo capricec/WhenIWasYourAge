@@ -3,8 +3,12 @@
   import { scalePoint, scaleLinear, scaleOrdinal } from "d3-scale";
   import { areaRadial, curveNatural, area} from "d3-shape";
   import { scrollState} from "$stores/misc";
-  import { Skull } from 'lucide-svelte';
-  import LucideIcon from '$components/story/LucideIcon';
+  import LucideIcon from '$components/story/LucideIcon.svelte';
+
+  import { draw } from "svelte/transition";
+  import { tweened } from 'svelte/motion'
+  import { interpolate } from 'd3-interpolate';
+  import { cubicOut } from "svelte/easing";
 
   let innerWidth = window.innerWidth;
   let innerHeight = window.innerHeight;
@@ -26,8 +30,10 @@
     scalePoint,
     areaRadial,
     curveNatural,
-    area
+    area,
+    interpolate
   };
+
 
   let areaRadialPlot = d3.areaRadial()
     .curve(curveNatural)
@@ -51,40 +57,70 @@
 
     let x = d3.scaleLinear()
     .domain([1900, 2022])
-    .range([-innerWidth/2, innerWidth/2])
+    .range([-innerWidth/2 + 115, innerWidth/2])
 
-   let y = d3.scaleLinear()
+   let ySmallMultiples = d3.scaleLinear()
     .domain([0 , 5.0])
+    .range([innerHeight/2 -100, -innerHeight/2 ])
+
+    let y = d3.scaleLinear()
+    .domain([0 , 0.5])
     .range([innerHeight/2 -100, -innerHeight/2 ])
 
   let categories = Object.keys(RawPercentage[0]);
   categories.shift();
 
-  categories = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
+  let categoriesreversed = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
 
-  let icons = ["grip-dots","wine-glass", "books","hand-holding-heart","pump-soap", "heart-pulse", "memo-circle-check", "popcorn", "car-side", "clothes-hanger", "house"]
+   categories = categoriesreversed.slice().reverse();
+
+  let icons = ["grip-horizontal","wine", "library","heart-handshake","shower-head", "cross", "file-text", "ticket", "car", "shirt", "home", "utensils"]
+
+  let iconsreversed = icons.slice().reverse();
 
   const colourScaleLine = d3.scaleOrdinal().domain(categories)
  /* .range(["grey", "lightgreen", "palegoldenrod", "pink", "orchid", "lightblue", "green", "yellow", "orange", "red", "purple", "blue"]);
   .range(['#222255', '#225555', '#225522', '#666633', '#663333', '#555555', '#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD'])*/
   .range(['#CC6677', '#0077BB', '#DDCC77', '#117733', '#88CCEE', '#882255', '#44AA99', '#999933', '#AA4499'])
 
-  let cleanData = categories.map((cat, index)  => {
-      return { 
-          category: cat,
-          //path: areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage),
-          path:areaPlot.y0(d=>y(index*0.4)).y1(d => y(+d[cat]+index*0.4))(RawPercentage),
-          fill: colourScaleLine(cat)
-        }
-    });
+  let cleanData = [];
+
+   const tweenOptions = {
+    interpolate: interpolate,
+    duration: 2000,
+    easing: cubicOut,
+  };
+
+  let tweenedPath = tweened(
+    categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(index*0.4))(RawPercentage)),
+    tweenOptions
+  );
+
+  $: pathData = categories.map((d, index) => ({
+    category: d,
+    path: $tweenedPath[index],
+    fill: colourScaleLine(d),
+    opacity: 1,
+    y: ySmallMultiples(index*0.4)
+  }));
+  
   let svg;
 
-
   function changeState(scrollPosition){
-    console.log(scrollPosition)
+    //console.log(scrollPosition, cleanData)
 
     if (scrollPosition == 0){
-      addAreas()
+      addSmallMultipleAreas()
+
+    }
+
+    if (scrollPosition == 1){
+     // addAreas()
+
+    }
+
+    if (scrollPosition == 2){
+      addRadial()
 
     }
 
@@ -96,12 +132,60 @@
     changeState(scrollPosition);
   });
 
-  
+ function addAreas(){
+
+  cleanData = categoriesreversed.map((cat, index)  => {
+
+      return { 
+          category: cat,
+          path:areaPlot.y0(d=>y(0)).y1(d => y(+d[cat]))(RawPercentage),
+          y: y(0),
+          opacity: 0.7,
+           fill: colourScaleLine(cat),
+          icon: icons[index],
+        }
+    });
+
+} 
  
 
 
-function addAreas(){
+function addSmallMultipleAreas(){
 
+   tweenedPath.set(categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)));
+
+  cleanData = categories.map((cat, index)  => {
+
+      return { 
+          category: cat,
+          //path: areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage),
+          path:areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage),
+          fill: colourScaleLine(cat),
+          icon: icons[index],
+          y: ySmallMultiples(index*0.4),
+          opacity: 1
+        }
+    });
+
+}
+
+function addRadial(){
+
+  pathData = pathData.reverse();
+
+   tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
+
+  cleanData = categoriesreversed.map((cat, index)  => {
+      return { 
+          category: cat,
+          path: areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage),
+          //path:areaPlot.y0(d=>y(index*0.4)).y1(d => y(+d[cat]+index*0.4))(RawPercentage),
+          fill: colourScaleLine(cat),
+          icon: icons[index],
+          y: y(index*0.4),
+          opacity: 0.7
+        }
+    });
 
 }
   
@@ -117,73 +201,37 @@ function addAreas(){
 viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
 >
   <g class = "Areas" >
-    <LucideIcon name="Skull" />
-    {#each cleanData as path}
+    
+    {#each pathData as path, i}
+      <LucideIcon name ={iconsreversed[i]} size ={"20px"} color={"white"} strokeWidth={"1px"} x = {-innerWidth/2 + 5 } y = {path.y - 28}/>
+      <text
+      class="label"
+      x = {-innerWidth/2 + 5 } 
+      y = {path.y}>
+      {path.category}
+    </text>
+      
       <path
+       transition:draw={{duration: 2000}}
         d={path.path}
         fill={path.fill}
-        fill-opacity = {1}
+        fill-opacity = {path.opacity}
       />
     {/each}
   </g>
-  <!--{#each node as point,i}
-    <circle
-      class="node"
-      r={(width/node.length/3)-2+point.Num_Couples*2}
-      fill={colourScaleGender(point.Gender)}
-      opacity = {colourScale(point.Entered) + "%"}
-      stroke = {colourScaleWinner(point.Status)}
-      stroke-width ={'1'}
-      cx={xScale(point.First_Name)}
-      cy={height - 70}
-    >
-    </circle>
 
-    <g
-      class="name-holder"
-      transform={"translate(" +(xScale(point.First_Name)+4) + "," + (height-60) + ") rotate(-90)"}>
-    <text
-      class="name"
-      text-anchor="end"
-      opacity = {colourScale(point.Entered) + "%"}
-    >{point.First_Name}</text>
-  </g>
-
-  {/each}-->
-
-  <!--{#each label as drawnLabel}
-    <g>
-      <path
-        d={diagonal(drawnLabel.path)}
-        fill={"none"}
-        stroke={"black"}
-        stroke-width={1}
-      />
-    </g>
-
-    <g
-      class="label-holder"
-      >
-    <text
-      class="label"
-      text-anchor="middle"
-      transform={"translate(" +(drawnLabel.path.source[0]) + "," + (drawnLabel.path.source[1]-5) + ")"}>
-    {drawnLabel.text}</text>
-
-    <text
-      class="label-arrow"
-      text-anchor="end"
-      font-size="30px"
-      transform={"translate(" +(drawnLabel.path.target[0]+6) + "," + (drawnLabel.path.target[1]+5) + ")"}>
-     &#8744</text>
-  </g>
-
-  {/each}-->
 </svg>
 
 <style>
   svg {
     float: left;
+  }
+
+  .label{
+    fill: white;
+    font-size: 10px;
+    word-wrap: break-word;
+    width: 20px;
   }
 
   @media (max-width: 600px) {

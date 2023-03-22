@@ -4,6 +4,8 @@
  
  
 </script>
+	
+
 	<figure>
 		<LayerCake >
 			<Svg>
@@ -20,7 +22,7 @@
 
 	@media (max-width: 600px) {
 	 figure {
-	 	margin: auto;
+	 	margin-left: 0px;
 		width: 350px;
 		height: 600px;
 		}
