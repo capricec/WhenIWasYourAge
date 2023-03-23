@@ -1,38 +1,92 @@
 <script>
+
+  //// IMPORT MANAGEMENT 
   import { onMount, getContext } from "svelte";
   import { scalePoint, scaleLinear, scaleOrdinal } from "d3-scale";
-  import { areaRadial, curveNatural, area} from "d3-shape";
-  import { scrollState} from "$stores/misc";
+  import { areaRadial, curveNatural, area, pointRadial} from "d3-shape";
+  import { scrollState, setAge} from "$stores/misc";
   import LucideIcon from '$components/story/LucideIcon.svelte';
-
   import { draw } from "svelte/transition";
   import { tweened } from 'svelte/motion'
   import { interpolate } from 'd3-interpolate';
   import { cubicOut } from "svelte/easing";
 
-  let innerWidth = window.innerWidth;
-  let innerHeight = window.innerHeight;
-  let size = Math.min(innerWidth, innerHeight);
-
-  let innerRadius = size / 6;
-  let outerRadius = size/1.5;
-
-  let scrollPosition;
-  let xScale;
-  
-  const IncomePercent = getContext("IncomePercent");
-  const RawPercentage = getContext("RawPercentage");
-  const ZScores = getContext("ZScores");
-
-  let d3 = {
+    let d3 = {
     scaleLinear,
     scaleOrdinal,
     scalePoint,
     areaRadial,
     curveNatural,
     area,
-    interpolate
+    interpolate,
+    pointRadial
   };
+
+ 
+  
+  ////  DATA MANAGEMENT 
+  const IncomePercent = getContext("IncomePercent");
+  const RawPercentage = getContext("RawPercentage");
+  const ZScores = getContext("ZScores");
+  const genData = getContext("genData");
+  const yearData = getContext("yearData")
+
+  let scrollPosition;
+  let currentAge;
+  scrollState.subscribe(value => {
+    console.log("scroll", value);
+    scrollPosition = value;
+    changeState(scrollPosition);
+  });
+
+  setAge.subscribe(value => {
+    currentAge = value;
+    console.log("age", value);
+  });
+
+  let clickVals = [];
+
+
+
+
+  //// STATE MANAGEMENT 
+  function changeState(scrollPosition){
+
+    if (scrollPosition == 0){
+      addSmallMultipleAreas()
+    }
+
+    if (scrollPosition == 1){
+     addRadial()
+    }
+
+    if (scrollPosition == 2){
+      addGenerations()
+    }
+
+  }
+
+  function changeAge(value){
+    console.log("changing age", value)
+    if(value == "increase"){
+      setAge.update(n => n + 1);
+      addGenerations();
+    } else {
+      setAge.update(n => n - 1);
+      addGenerations();
+    }
+  }
+
+
+
+  //// CHART MANAGEMENT 
+  let svg;
+  let innerWidth = window.innerWidth;
+  let innerHeight = window.innerHeight;
+  let size = Math.min(innerWidth, innerHeight);
+
+  let innerRadius = 160;
+  let outerRadius = size/1.5;
 
 
   let areaRadialPlot = d3.areaRadial()
@@ -67,12 +121,9 @@
     .domain([0 , 0.5])
     .range([innerHeight/2 -100, -innerHeight/2 ])
 
-  let categories = Object.keys(RawPercentage[0]);
-  categories.shift();
+  let categories = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
 
-  let categoriesreversed = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
-
-   categories = categoriesreversed.slice().reverse();
+   categories = categories.slice().reverse();
 
   let icons = ["grip-horizontal","wine", "library","heart-handshake","shower-head", "cross", "file-text", "ticket", "car", "shirt", "home", "utensils"]
 
@@ -83,9 +134,9 @@
   .range(['#222255', '#225555', '#225522', '#666633', '#663333', '#555555', '#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD'])*/
   .range(['#CC6677', '#0077BB', '#DDCC77', '#117733', '#88CCEE', '#882255', '#44AA99', '#999933', '#AA4499'])
 
-  let cleanData = [];
+  
 
-   const tweenOptions = {
+  const tweenOptions = {
     interpolate: interpolate,
     duration: 2000,
     easing: cubicOut,
@@ -96,6 +147,23 @@
     tweenOptions
   );
 
+  function makePath(start){
+    if(start >= 2021){ start = 2021 }
+    return "M"+ d3.pointRadial(xRadial(start), innerRadius-20) + "L" + d3.pointRadial(xRadial(start), outerRadius - 50)
+  }
+
+  function makeHREFPath(start, end, shift){
+    if(end >= 2021){ end= 2021; }
+    if(start >= 2021){ start = 2021 }
+    return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)
+  }
+
+  function makeStraightHREFPath(start, end){
+    if(end >= 2021){ end= 2021; }
+    if(start >= 2021){ start = 2021 }
+    return "M" + x(start) +", " + (innerHeight/2 -80) + " h " + (x(end)-x(start))
+  }
+
   $: pathData = categories.map((d, index) => ({
     category: d,
     path: $tweenedPath[index],
@@ -103,94 +171,77 @@
     opacity: 1,
     y: ySmallMultiples(index*0.4)
   }));
-  
-  let svg;
 
-  function changeState(scrollPosition){
-    //console.log(scrollPosition, cleanData)
+  console.log(genData)
 
-    if (scrollPosition == 0){
-      addSmallMultipleAreas()
-
-    }
-
-    if (scrollPosition == 1){
-     // addAreas()
-
-    }
-
-    if (scrollPosition == 2){
-      addRadial()
-
-    }
-
-  }
-
-
-  scrollState.subscribe(value => {
-    scrollPosition = value;
-    changeState(scrollPosition);
-  });
-
- function addAreas(){
-
-  cleanData = categoriesreversed.map((cat, index)  => {
-
-      return { 
-          category: cat,
-          path:areaPlot.y0(d=>y(0)).y1(d => y(+d[cat]))(RawPercentage),
-          y: y(0),
-          opacity: 0.7,
-           fill: colourScaleLine(cat),
-          icon: icons[index],
-        }
-    });
-
-} 
  
 
+ $: yearVals = yearData.map((d,index) => ({
+    value: d.name,
+    path: makePath(+d.startYear),
+    pathhref: makeStraightHREFPath(+d.startYear, +d.endYear)
+
+  }))
+
+ $: xGenVals = [];
+
+
+
+//// CHART BUILDING FUNCTIONS
+
+/* function addAreas(){
+
+          path:areaPlot.y0(d=>y(0)).y1(d => y(+d[cat]))(RawPercentage),
+        
+} */
+ 
 
 function addSmallMultipleAreas(){
 
    tweenedPath.set(categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)));
 
-  cleanData = categories.map((cat, index)  => {
+   xGenVals = [];
 
-      return { 
-          category: cat,
-          //path: areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage),
-          path:areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage),
-          fill: colourScaleLine(cat),
-          icon: icons[index],
-          y: ySmallMultiples(index*0.4),
-          opacity: 1
-        }
-    });
+   yearVals = yearData.map((d,index) => ({
+    value: d.name,
+    path: makePath(+d.startYear),
+    pathhref: makeStraightHREFPath(+d.startYear, +d.endYear)
+
+  }))
+
+   clickVals = [];
 
 }
 
 function addRadial(){
 
-  pathData = pathData.reverse();
-
    tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
 
-  cleanData = categoriesreversed.map((cat, index)  => {
-      return { 
-          category: cat,
-          path: areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage),
-          //path:areaPlot.y0(d=>y(index*0.4)).y1(d => y(+d[cat]+index*0.4))(RawPercentage),
-          fill: colourScaleLine(cat),
-          icon: icons[index],
-          y: y(index*0.4),
-          opacity: 0.7
-        }
-    });
+   yearVals = yearData.map((d,index) => ({
+    value: d.name,
+    path: makePath(+d.startYear),
+    pathhref: makeHREFPath(+d.startYear, +d.endYear, 15)
+
+  }))
+
+   clickVals = [];
+
+  
+}
+
+function addGenerations(){
+
+   xGenVals = genData.map((d,index) => ({
+    value: d.name,
+    path: makePath(+d.startYear +currentAge),
+    pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 35)
+    }))
+
+   clickVals = [currentAge];
 
 }
   
   function resize() {
-    //console.log("resize", width, height);
   }
 
 </script>
@@ -219,6 +270,77 @@ viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
       />
     {/each}
   </g>
+  <g class="axis x-axis year">
+  {#each yearVals as tick, i}
+      <path
+        d={tick.pathhref}
+        id = {tick.value}
+        fill={"none"}
+      />
+      <text>
+        <textPath
+        class="ticklabelyear"
+        startOffset = {10} 
+        href = {"#"+tick.value}>
+      {tick.value}
+      </textPath>
+    </text>
+  {/each}
+</g>
+  <g class="axis x-axis generations">
+  {#each xGenVals as tick, i}
+    <path
+       transition:draw={{duration: 2000}}
+        d={tick.path}
+        stroke={"#ffffff"}
+        stroke-opacity = {0.8}
+      />
+      <path
+        d={tick.pathhref}
+        id = {tick.value}
+        fill={"none"}
+      />
+      <text>
+        <textPath
+        class="ticklabel"
+        startOffset = {10} 
+        href = {"#"+tick.value}>
+      {tick.value}
+      </textPath>
+    </text>
+  {/each}
+</g>
+ <g class="ageSelector">
+ {#each clickVals as click}
+  <text
+      class="clickButton"
+      x = {-55} 
+      y = {10}
+      on:click = {() => changeAge("decrease")}>
+      {"<"}
+    </text>
+    <text
+      class="ageLabeltext"
+      x = {-12} 
+      y = {-30}>
+      {"Age"}
+    </text>
+    <text
+      class="ageLabel"
+      x = {-40} 
+      y = {25}>
+      {currentAge}
+    </text>
+    <text
+      class="clickButton"
+      x = {35} 
+      y = {10}
+      on:click = {() =>changeAge("increase")}>
+      {">"}
+    </text>
+  {/each}
+</g>
+
 
 </svg>
 
@@ -227,11 +349,38 @@ viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
     float: left;
   }
 
-  .label{
+  .label, .ticklabel{
     fill: white;
     font-size: 10px;
     word-wrap: break-word;
     width: 20px;
+  }
+
+  .ticklabel{
+    font-size: 12px;
+  }
+
+  .ticklabelyear{
+    fill: white;
+    opacity: 0.3;
+    font-size: 10px;
+  }
+
+  .ageLabel{
+    font-size: 65px;
+    fill: white;
+    letter-spacing: -5px;
+  }
+  .ageLabeltext{
+    font-size: 10px;
+    fill: white;
+
+  }
+
+  .clickButton{
+    font-size: 20px;
+    fill: white;
+    cursor: pointer;
   }
 
   @media (max-width: 600px) {

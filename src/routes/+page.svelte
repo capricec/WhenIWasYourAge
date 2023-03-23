@@ -22,6 +22,8 @@
 	setContext("IncomePercent", data.IncomePercent);
 	setContext("RawPercentage", data.RawPercentage);
 	setContext("ZScores", data.ZScores);
+	setContext("genData", data.genData);
+	setContext("yearData", data.yearData)
 
 </script>
 
