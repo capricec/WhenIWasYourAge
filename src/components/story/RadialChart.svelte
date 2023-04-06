@@ -3,7 +3,7 @@
   //// IMPORT MANAGEMENT 
   import { onMount, getContext } from "svelte";
   import { scalePoint, scaleLinear, scaleOrdinal } from "d3-scale";
-  import { areaRadial, curveNatural, area, pointRadial} from "d3-shape";
+  import { areaRadial, curveNatural, area, pointRadial, lineRadial} from "d3-shape";
   import { scrollState, setAge} from "$stores/misc";
   import LucideIcon from '$components/story/LucideIcon.svelte';
   import { draw } from "svelte/transition";
@@ -19,7 +19,8 @@
     curveNatural,
     area,
     interpolate,
-    pointRadial
+    pointRadial,
+    lineRadial
   };
 
  
@@ -46,6 +47,14 @@
 
   let clickVals = [];
 
+  let categories = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
+
+   categories = categories.slice().reverse();
+
+  let icons = ["grip-horizontal","wine", "library","heart-handshake","shower-head", "cross", "file-text", "ticket", "car", "shirt", "home", "utensils"]
+
+  let iconsreversed = icons.slice().reverse();
+
 
 
 
@@ -57,11 +66,15 @@
     }
 
     if (scrollPosition == 1){
-     addRadial()
+       addRadial()
     }
 
     if (scrollPosition == 2){
       addGenerations()
+    }
+
+    if (scrollPosition == 4){
+      addZScores()
     }
 
   }
@@ -80,15 +93,26 @@
 
 
   //// CHART MANAGEMENT 
+  
   let svg;
   let innerWidth = window.innerWidth;
   let innerHeight = window.innerHeight;
   let size = Math.min(innerWidth, innerHeight);
-
   let innerRadius = 160;
   let outerRadius = size/1.5;
 
 
+  //// COLORS
+
+  const colourScaleLine = d3.scaleOrdinal().domain(categories)
+ /* .range(["grey", "lightgreen", "palegoldenrod", "pink", "orchid", "lightblue", "green", "yellow", "orange", "red", "purple", "blue"]);
+  .range(['#222255', '#225555', '#225522', '#666633', '#663333', '#555555', '#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD'])
+  .range([ '#E8ECFB', '#D9CCE3','#BA8DB4', '#994F88', '#437DBF', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#F6C141', '#F4A736', '#E8601C', '#777777'])*/
+
+  .range([ '#DC050C','#E8601C', '#F4A736', '#F7F056', '#CAE0AB', '#4EB265', '#7BAFDE', '#437DBF', '#994F88', '#BA8DB4', '#D9CCE3', '#777777'])
+
+
+  //// RADIAL PLOT
   let areaRadialPlot = d3.areaRadial()
     .curve(curveNatural)
     .angle(d => xRadial(+d.Year))
@@ -103,7 +127,9 @@
     .domain([0 , .50])
     .range([innerRadius, outerRadius])
 
-    let areaPlot = d3.area()
+ 
+  //// SMALL MULTIPLES
+   let areaPlot = d3.area()
     .curve(curveNatural)
     .x(d => x(+d.Year))
     .y0(d => y(0))
@@ -117,25 +143,21 @@
     .domain([0 , 5.0])
     .range([innerHeight/2 -100, -innerHeight/2 ])
 
-    let y = d3.scaleLinear()
-    .domain([0 , 0.5])
-    .range([innerHeight/2 -100, -innerHeight/2 ])
 
-  let categories = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
 
-   categories = categories.slice().reverse();
+  //// LINE RADIAL PLOT
+  let lineRadialPlot = d3.lineRadial()
+    .curve(curveNatural)
+    .angle(d => xRadial(+d.Year))
+    .radius(d => yRadialLine(+d.Food))
 
-  let icons = ["grip-horizontal","wine", "library","heart-handshake","shower-head", "cross", "file-text", "ticket", "car", "shirt", "home", "utensils"]
-
-  let iconsreversed = icons.slice().reverse();
-
-  const colourScaleLine = d3.scaleOrdinal().domain(categories)
- /* .range(["grey", "lightgreen", "palegoldenrod", "pink", "orchid", "lightblue", "green", "yellow", "orange", "red", "purple", "blue"]);
-  .range(['#222255', '#225555', '#225522', '#666633', '#663333', '#555555', '#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD'])*/
-  .range(['#CC6677', '#0077BB', '#DDCC77', '#117733', '#88CCEE', '#882255', '#44AA99', '#999933', '#AA4499'])
-
+  let yRadialLine = d3.scaleLinear()
+    .domain([0, 4])
+    .range([innerRadius, outerRadius])
   
 
+  
+  //// PATH AND TWEENING FUNCTIONS
   const tweenOptions = {
     interpolate: interpolate,
     duration: 2000,
@@ -143,7 +165,17 @@
   };
 
   let tweenedPath = tweened(
-    categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(index*0.4))(RawPercentage)),
+    categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)),
+    tweenOptions
+  );
+
+  let tweenedColor = tweened(
+    categories.map((cat, index) => colourScaleLine(cat)),
+    tweenOptions
+  );
+
+  let tweenedStroke = tweened(
+    categories.map((cat, index) => "transparent"),
     tweenOptions
   );
 
@@ -155,6 +187,7 @@
   function makeHREFPath(start, end, shift){
     if(end >= 2021){ end= 2021; }
     if(start >= 2021){ start = 2021 }
+    if(start <= 1900){ start = 1900 }
     return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)
   }
 
@@ -164,16 +197,18 @@
     return "M" + x(start) +", " + (innerHeight/2 -80) + " h " + (x(end)-x(start))
   }
 
+
+
+
+//// INITIALIZING DATA SETS
   $: pathData = categories.map((d, index) => ({
     category: d,
     path: $tweenedPath[index],
-    fill: colourScaleLine(d),
+    fill: $tweenedColor[index],
+    stroke: $tweenedStroke[index],
     opacity: 1,
     y: ySmallMultiples(index*0.4)
   }));
-
-  console.log(genData)
-
  
 
  $: yearVals = yearData.map((d,index) => ({
@@ -184,6 +219,8 @@
   }))
 
  $: xGenVals = [];
+
+ $: medianCircle = [];
 
 
 
@@ -200,8 +237,6 @@ function addSmallMultipleAreas(){
 
    tweenedPath.set(categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)));
 
-   xGenVals = [];
-
    yearVals = yearData.map((d,index) => ({
     value: d.name,
     path: makePath(+d.startYear),
@@ -209,13 +244,19 @@ function addSmallMultipleAreas(){
 
   }))
 
+   xGenVals = [];
    clickVals = [];
+   medianCircle = [];
 
 }
 
 function addRadial(){
 
    tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
+
+   tweenedStroke.set(categories.map((cat, index) => "transparent"))
+
+   tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))
 
    yearVals = yearData.map((d,index) => ({
     value: d.name,
@@ -224,12 +265,24 @@ function addRadial(){
 
   }))
 
+   xGenVals = [];
    clickVals = [];
+   medianCircle = [{
+    radius: innerRadius + 1,
+    width: 1,
+    stroke: "grey"
+   }];
 
   
 }
 
 function addGenerations(){
+
+   /*tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
+
+   tweenedStroke.set(categories.map((cat, index) => "transparent"))
+
+   tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))*/
 
    xGenVals = genData.map((d,index) => ({
     value: d.name,
@@ -239,6 +292,32 @@ function addGenerations(){
 
    clickVals = [currentAge];
 
+}
+
+function addZScores(){
+
+  pathData = categories.map((d, index) => ({
+      category: d,
+      path: tweenedPath[index],
+      fill: tweenedColor[index],
+      stroke: tweenedStroke[index],
+      opacity: 1,
+      y: ySmallMultiples(index*0.4)
+    }));
+
+   tweenedPath.set(categories.map((cat, index) => lineRadialPlot.radius(d => yRadialLine(+d[cat]))(ZScores)))
+
+   tweenedColor.set(categories.map((cat, index) => "transparent"))
+
+   tweenedStroke.set(categories.map((cat, index) => colourScaleLine(cat)))
+
+   medianCircle = [{
+    radius: innerRadius + 1,
+    width: 3,
+    stroke: "white"
+   }];
+
+   
 }
   
   function resize() {
@@ -265,11 +344,24 @@ viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
       <path
        transition:draw={{duration: 2000}}
         d={path.path}
+        stroke = {path.stroke}
+        stroke-width = {3}
         fill={path.fill}
         fill-opacity = {path.opacity}
       />
     {/each}
   </g>
+  <g class="background circle">
+  {#each medianCircle as circle, i}
+  <circle 
+  cx="0" 
+  cy="0" 
+  r={circle.radius}
+  stroke ={circle.stroke}
+  stroke-width = {circle.width} />
+
+  {/each}
+</g>
   <g class="axis x-axis year">
   {#each yearVals as tick, i}
       <path
@@ -310,6 +402,7 @@ viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
     </text>
   {/each}
 </g>
+
  <g class="ageSelector">
  {#each clickVals as click}
   <text
@@ -362,7 +455,7 @@ viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
 
   .ticklabelyear{
     fill: white;
-    opacity: 0.3;
+    opacity: 0.6;
     font-size: 10px;
   }
 
