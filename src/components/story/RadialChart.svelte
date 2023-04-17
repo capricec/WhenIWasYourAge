@@ -32,8 +32,11 @@
   const genData = getContext("genData");
   const yearData = getContext("yearData")
 
+  //console.log(ZScores);
+
   let scrollPosition;
   let currentAge;
+  
   scrollState.subscribe(value => {
     console.log("scroll", value);
     scrollPosition = value;
@@ -77,6 +80,16 @@
       addZScores()
     }
 
+    if (scrollPosition == 5){
+      addDots()
+    }
+
+    if (scrollPosition == 6){
+      sizeDots()
+    }
+
+    
+
   }
 
   function changeAge(value){
@@ -105,10 +118,6 @@
   //// COLORS
 
   const colourScaleLine = d3.scaleOrdinal().domain(categories)
- /* .range(["grey", "lightgreen", "palegoldenrod", "pink", "orchid", "lightblue", "green", "yellow", "orange", "red", "purple", "blue"]);
-  .range(['#222255', '#225555', '#225522', '#666633', '#663333', '#555555', '#BBCCEE', '#CCEEFF', '#CCDDAA', '#EEEEBB', '#FFCCCC', '#DDDDDD'])
-  .range([ '#E8ECFB', '#D9CCE3','#BA8DB4', '#994F88', '#437DBF', '#7BAFDE', '#4EB265', '#CAE0AB', '#F7F056', '#F6C141', '#F4A736', '#E8601C', '#777777'])*/
-
   .range([ '#DC050C','#E8601C', '#F4A736', '#F7F056', '#CAE0AB', '#4EB265', '#7BAFDE', '#437DBF', '#994F88', '#BA8DB4', '#D9CCE3', '#777777'])
 
 
@@ -137,7 +146,7 @@
 
     let x = d3.scaleLinear()
     .domain([1900, 2022])
-    .range([-innerWidth/2 + 115, innerWidth/2])
+    .range([-innerWidth/2 + 65, innerWidth/2 - 50])
 
    let ySmallMultiples = d3.scaleLinear()
     .domain([0 , 5.0])
@@ -154,6 +163,9 @@
   let yRadialLine = d3.scaleLinear()
     .domain([0, 4])
     .range([innerRadius, outerRadius])
+
+
+ //// POINTS RADIAL PLOT
   
 
   
@@ -179,6 +191,11 @@
     tweenOptions
   );
 
+  let tweenedOpacity = tweened(
+    categories.map((cat, index) => 1),
+    tweenOptions
+  );
+
   function makePath(start){
     if(start >= 2021){ start = 2021 }
     return "M"+ d3.pointRadial(xRadial(start), innerRadius-20) + "L" + d3.pointRadial(xRadial(start), outerRadius - 50)
@@ -192,8 +209,8 @@
   }
 
   function makeStraightHREFPath(start, end){
-    if(end >= 2021){ end= 2021; }
-    if(start >= 2021){ start = 2021 }
+    if(end >= 2021){ end= 2022; }
+    if(start >= 2021){ start = 2022 }
     return "M" + x(start) +", " + (innerHeight/2 -80) + " h " + (x(end)-x(start))
   }
 
@@ -206,7 +223,8 @@
     path: $tweenedPath[index],
     fill: $tweenedColor[index],
     stroke: $tweenedStroke[index],
-    opacity: 1,
+    opacity: $tweenedOpacity[index],
+    color: colourScaleLine(d),
     y: ySmallMultiples(index*0.4)
   }));
  
@@ -222,6 +240,7 @@
 
  $: medianCircle = [];
 
+ $: pointData = [];
 
 
 //// CHART BUILDING FUNCTIONS
@@ -248,6 +267,10 @@ function addSmallMultipleAreas(){
    clickVals = [];
    medianCircle = [];
 
+   tweenedOpacity.set(categories.map((cat, index) => 1))
+
+   console.log(pointData);
+
 }
 
 function addRadial(){
@@ -257,6 +280,8 @@ function addRadial(){
    tweenedStroke.set(categories.map((cat, index) => "transparent"))
 
    tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))
+
+   tweenedOpacity.set(categories.map((cat, index) => 0.8))
 
    yearVals = yearData.map((d,index) => ({
     value: d.name,
@@ -278,11 +303,6 @@ function addRadial(){
 
 function addGenerations(){
 
-   /*tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
-
-   tweenedStroke.set(categories.map((cat, index) => "transparent"))
-
-   tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))*/
 
    xGenVals = genData.map((d,index) => ({
     value: d.name,
@@ -296,20 +316,13 @@ function addGenerations(){
 
 function addZScores(){
 
-  pathData = categories.map((d, index) => ({
-      category: d,
-      path: tweenedPath[index],
-      fill: tweenedColor[index],
-      stroke: tweenedStroke[index],
-      opacity: 1,
-      y: ySmallMultiples(index*0.4)
-    }));
-
    tweenedPath.set(categories.map((cat, index) => lineRadialPlot.radius(d => yRadialLine(+d[cat]))(ZScores)))
 
    tweenedColor.set(categories.map((cat, index) => "transparent"))
 
    tweenedStroke.set(categories.map((cat, index) => colourScaleLine(cat)))
+
+   tweenedOpacity.set(categories.map((cat, index) => 1))
 
    medianCircle = [{
     radius: innerRadius + 1,
@@ -317,7 +330,51 @@ function addZScores(){
     stroke: "white"
    }];
 
+   $: pointData = [];
+
    
+}
+
+function addDots(){
+
+  pointData = ZScores.map((d,i) => {
+      return [
+        categories.map(cat => {
+            return {
+              year: d.Year,
+              category: cat,
+              zscore: +d[cat],
+              percent: 5,
+              point: d3.pointRadial(xRadial(+d.Year), yRadialLine(+d[cat])),
+              color: colourScaleLine(cat)
+           }
+          })
+        ]
+      })
+
+  console.log(pointData);
+}
+
+function sizeDots(){
+
+  tweenedStroke.set(categories.map((cat, index) => "transparent"))
+
+  pointData = ZScores.map((d,i) => {
+      return [
+        categories.map(cat => {
+            return {
+              year: d.Year,
+              category: cat,
+              zscore: +d[cat],
+              percent: IncomePercent[i][cat]*100,
+              point: d3.pointRadial(xRadial(+d.Year), yRadialLine(+d[cat])),
+              color: colourScaleLine(cat)
+           }
+          })
+        ]
+      })
+
+  console.log(pointData);
 }
   
   function resize() {
@@ -328,16 +385,22 @@ function addZScores(){
 <svelte:window on:resize={resize} />
 
 <svg bind:this={svg} {innerWidth} {innerHeight}
-viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
+viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
 >
   <g class = "Areas" >
     
     {#each pathData as path, i}
-      <LucideIcon name ={iconsreversed[i]} size ={"20px"} color={"white"} strokeWidth={"1px"} x = {-innerWidth/2 + 5 } y = {path.y - 28}/>
+      <circle 
+      cx= {-innerWidth/2 -35}
+      cy= {path.y - 8}
+      r={15}
+      fill ={path.color}
+      />
+      <LucideIcon name ={iconsreversed[i]} size ={"20px"} color={"black"} strokeWidth={"1px"} x = {-innerWidth/2 - 45 } y = {path.y - 18}/>
       <text
       class="label"
-      x = {-innerWidth/2 + 5 } 
-      y = {path.y}>
+      x = {-innerWidth/2 - 15 } 
+      y = {path.y-4}>
       {path.category}
     </text>
       
@@ -349,6 +412,18 @@ viewBox = {[-innerWidth/2, -innerHeight/2, innerWidth, innerHeight]}
         fill={path.fill}
         fill-opacity = {path.opacity}
       />
+    {/each}
+  </g>
+  <g class = "Dots" >
+    {#each pointData as year, j}
+      {#each year[0] as dot, k}
+        <circle 
+        cx= {dot.point[0]}
+        cy= {dot.point[1]}
+        r={dot.percent}
+        fill ={dot.color}
+        />
+      {/each}
     {/each}
   </g>
   <g class="background circle">
