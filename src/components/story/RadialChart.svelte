@@ -54,11 +54,8 @@
 
    categories = categories.slice().reverse();
 
-  let icons = ["grip-horizontal","wine", "library","heart-handshake","shower-head", "cross", "file-text", "ticket", "car", "shirt", "home", "utensils"]
-
-  let iconsreversed = icons.slice().reverse();
-
-
+  const iconsScaleLine = d3.scaleOrdinal().domain(categories)
+  .range([ "utensils","home", "shirt","car","ticket", "file-text", "cross", "shower-head", "heart-handshake", "library", "wine", "grip-horizontal"])
 
 
   //// STATE MANAGEMENT 
@@ -84,7 +81,7 @@
       addDots()
     }
 
-    if (scrollPosition == 6){
+    if (scrollPosition == 7){
       sizeDots()
     }
 
@@ -111,8 +108,8 @@
   let innerWidth = window.innerWidth;
   let innerHeight = window.innerHeight;
   let size = Math.min(innerWidth, innerHeight);
-  let innerRadius = 160;
-  let outerRadius = size/1.5;
+  let innerRadius = 120;
+  let outerRadius = size/2;
 
 
   //// COLORS
@@ -129,7 +126,7 @@
     .outerRadius(d => yRadial(+d.Food))
 
    let xRadial = d3.scaleLinear()
-    .domain([1900, 2022])
+    .domain([1895, 2025])
     .range([0, 2 * Math.PI])
 
    let yRadial = d3.scaleLinear()
@@ -145,7 +142,7 @@
     .y1(d => y(+d.Food))
 
     let x = d3.scaleLinear()
-    .domain([1900, 2022])
+    .domain([1895, 2025])
     .range([-innerWidth/2 + 65, innerWidth/2 - 50])
 
    let ySmallMultiples = d3.scaleLinear()
@@ -167,6 +164,11 @@
 
  //// POINTS RADIAL PLOT
   
+
+  // This is the function where you pass in the value to calculate the correct radius of the bubble.
+  function radius(value){
+     return (Math.sqrt((value * Math.pow(size/8,2)) / .4));
+  }
 
   
   //// PATH AND TWEENING FUNCTIONS
@@ -197,20 +199,21 @@
   );
 
   function makePath(start){
-    if(start >= 2021){ start = 2021 }
-    return "M"+ d3.pointRadial(xRadial(start), innerRadius-20) + "L" + d3.pointRadial(xRadial(start), outerRadius - 50)
+    if(start >= 2021){ start = 2025 }
+    return "M"+ d3.pointRadial(xRadial(start), innerRadius) + "L" + d3.pointRadial(xRadial(start), outerRadius - 30)
   }
 
   function makeHREFPath(start, end, shift){
-    if(end >= 2021){ end= 2021; }
-    if(start >= 2021){ start = 2021 }
+    if(end >= 2021){ end= 2025; }
+    if(start >= 2021){ start = 2025 }
     if(start <= 1900){ start = 1900 }
-    return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)
+    /*return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)*/
+  return "M" + d3.pointRadial(xRadial(start), outerRadius-shift)+ "A" + (outerRadius-shift) +"," + (outerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), outerRadius-shift)
   }
 
   function makeStraightHREFPath(start, end){
-    if(end >= 2021){ end= 2022; }
-    if(start >= 2021){ start = 2022 }
+    if(end >= 2021){ end= 2025; }
+    if(start >= 2021){ start = 2025 }
     return "M" + x(start) +", " + (innerHeight/2 -80) + " h " + (x(end)-x(start))
   }
 
@@ -293,7 +296,7 @@ function addRadial(){
    xGenVals = [];
    clickVals = [];
    medianCircle = [{
-    radius: innerRadius + 1,
+    radius: innerRadius - 1,
     width: 1,
     stroke: "grey"
    }];
@@ -307,7 +310,7 @@ function addGenerations(){
    xGenVals = genData.map((d,index) => ({
     value: d.name,
     path: makePath(+d.startYear +currentAge),
-    pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 35)
+    pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 40)
     }))
 
    clickVals = [currentAge];
@@ -346,7 +349,8 @@ function addDots(){
               zscore: +d[cat],
               percent: 5,
               point: d3.pointRadial(xRadial(+d.Year), yRadialLine(+d[cat])),
-              color: colourScaleLine(cat)
+              color: colourScaleLine(cat),
+              lucidcolor: "transparent"
            }
           })
         ]
@@ -366,9 +370,10 @@ function sizeDots(){
               year: d.Year,
               category: cat,
               zscore: +d[cat],
-              percent: IncomePercent[i][cat]*100,
+              percent: radius(IncomePercent[i][cat]),
               point: d3.pointRadial(xRadial(+d.Year), yRadialLine(+d[cat])),
-              color: colourScaleLine(cat)
+              color: colourScaleLine(cat),
+              lucidcolor: "black"
            }
           })
         ]
@@ -385,7 +390,7 @@ function sizeDots(){
 <svelte:window on:resize={resize} />
 
 <svg bind:this={svg} {innerWidth} {innerHeight}
-viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
+viewBox = {[-innerWidth/2 - 50, -innerHeight/2 +30, innerWidth, innerHeight]}
 >
   <g class = "Areas" >
     
@@ -396,7 +401,7 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
       r={15}
       fill ={path.color}
       />
-      <LucideIcon name ={iconsreversed[i]} size ={"20px"} color={"black"} strokeWidth={"1px"} x = {-innerWidth/2 - 45 } y = {path.y - 18}/>
+      <LucideIcon name ={iconsScaleLine(path.category)} size ={"20px"} color={"black"} strokeWidth={"1px"} x = {-innerWidth/2 - 45 } y = {path.y - 18}/>
       <text
       class="label"
       x = {-innerWidth/2 - 15 } 
@@ -423,6 +428,7 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
         r={dot.percent}
         fill ={dot.color}
         />
+        <LucideIcon name ={iconsScaleLine(dot.category)} size ={dot.percent + "px"} color={dot.lucidcolor} strokeWidth={"1px"} x = {dot.point[0] - dot.percent / 2 } y = {dot.point[1] - dot.percent / 2}/>
       {/each}
     {/each}
   </g>
@@ -460,6 +466,7 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
        transition:draw={{duration: 2000}}
         d={tick.path}
         stroke={"#ffffff"}
+        stroke-width = "3"
         stroke-opacity = {0.8}
       />
       <path
@@ -470,7 +477,8 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
       <text>
         <textPath
         class="ticklabel"
-        startOffset = {10} 
+        text-anchor= "middle"
+        startOffset = {"50%"} 
         href = {"#"+tick.value}>
       {tick.value}
       </textPath>
@@ -482,29 +490,36 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
  {#each clickVals as click}
   <text
       class="clickButton"
-      x = {-55} 
-      y = {10}
-      on:click = {() => changeAge("decrease")}>
-      {"<"}
+      x = {-40} 
+      y = {5}
+      on:click = {() => changeAge("decrease")}
+      text-anchor = "middle">
+      {"\u25C0"}
     </text>
     <text
       class="ageLabeltext"
-      x = {-12} 
-      y = {-30}>
-      {"Age"}
+      x = {0} 
+      y = {-30}
+      text-anchor = "middle"
+      >
+      {"Your Age"}
     </text>
     <text
       class="ageLabel"
-      x = {-40} 
-      y = {25}>
+      x = {0} 
+      y = {25}
+      text-anchor = "middle"
+      >
+
       {currentAge}
     </text>
     <text
       class="clickButton"
-      x = {35} 
-      y = {10}
-      on:click = {() =>changeAge("increase")}>
-      {">"}
+      x = {45} 
+      y = {5}
+      on:click = {() =>changeAge("increase")}
+      text-anchor = "middle">
+      {"\u25B6"}
     </text>
   {/each}
 </g>
@@ -525,7 +540,7 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
   }
 
   .ticklabel{
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .ticklabelyear{
@@ -546,7 +561,7 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2, innerWidth, innerHeight]}
   }
 
   .clickButton{
-    font-size: 20px;
+    font-size: 10px;
     fill: white;
     cursor: pointer;
   }

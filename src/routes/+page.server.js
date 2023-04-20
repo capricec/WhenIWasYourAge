@@ -115,6 +115,11 @@ export async function load() {
 		startYear: "2010",
 		endYear:"2020"
 	},
+	{
+		name: "2020",
+		startYear: "2020",
+		endYear:"2030"
+	},
 	]
 
 	return { data, IncomePercent, RawPercentage, ZScores, genData, yearData };
