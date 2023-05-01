@@ -62,6 +62,12 @@
 			<StoryScrolly/>
 			<div class="spacer" />
 		</div>
+		<div class = "ontop">
+			<div class = "content-holder content-text">
+				<p>{copy.Outro1} </p>
+				<p>{copy.Outro2} </p>
+			</div>
+		</div>
 </div>
 
 <style>

@@ -31,8 +31,12 @@
   const ZScores = getContext("ZScores");
   const genData = getContext("genData");
   const yearData = getContext("yearData")
+  let RawPercentage2021 = RawPercentage.slice().filter(f => f.Year == '2021');
+  let newYear = JSON.parse(JSON.stringify(RawPercentage2021[0]));
+  RawPercentage2021.push(newYear);
+  RawPercentage2021[1].Year = '2015';
 
-  //console.log(ZScores);
+  console.log(RawPercentage);
 
   let scrollPosition;
   let currentAge;
@@ -52,7 +56,9 @@
 
   let categories = ['Misc', 'Alcohol & Tobacco',    'Reading and Education',  'Religion and Charity', 'Personal care', 'Healthcare', 'Insurance', 'Entertainment', 'Transportation','Apparel ','Housing', 'Food'];
 
-   categories = categories.slice().reverse();
+  categories = categories.slice().reverse();
+
+  let justHousingCategories = ["Housing"];
 
   const iconsScaleLine = d3.scaleOrdinal().domain(categories)
   .range([ "utensils","home", "shirt","car","ticket", "file-text", "cross", "shower-head", "heart-handshake", "library", "wine", "grip-horizontal"])
@@ -62,27 +68,37 @@
   function changeState(scrollPosition){
 
     if (scrollPosition == 0){
-      addSmallMultipleAreas()
+      addAreas()
+      //addSmallMultipleAreas()
     }
 
     if (scrollPosition == 1){
-       addRadial()
-    }
-
-    if (scrollPosition == 2){
-      addGenerations()
+       addSmallMultipleAreas()
     }
 
     if (scrollPosition == 4){
-      addZScores()
+       addHousingRadial()
+    }
+
+    if (scrollPosition == 6){
+       addRadial()
     }
 
     if (scrollPosition == 5){
-      addDots()
+      addGenerations()
     }
 
     if (scrollPosition == 7){
+      addZScores()
+    }
+
+    if (scrollPosition == 8){
+      addDots()
+    }
+
+    if (scrollPosition == 10){
       sizeDots()
+      centerDotsonGeneration()
     }
 
     
@@ -94,9 +110,15 @@
     if(value == "increase"){
       setAge.update(n => n + 1);
       addGenerations();
+      if(scrollPosition > 6 || scrollPosition == undefined){
+        centerDotsonGeneration()
+      }
     } else {
       setAge.update(n => n - 1);
       addGenerations();
+      if(scrollPosition > 6 || scrollPosition == undefined){
+        centerDotsonGeneration()
+      }
     }
   }
 
@@ -126,14 +148,19 @@
     .outerRadius(d => yRadial(+d.Food))
 
    let xRadial = d3.scaleLinear()
-    .domain([1895, 2025])
+    .domain([1895, 2021])
     .range([0, 2 * Math.PI])
 
    let yRadial = d3.scaleLinear()
     .domain([0 , .50])
     .range([innerRadius, outerRadius])
 
- 
+ //// INITAL BARS 
+ let xInitial = d3.scaleLinear()
+    .domain([1895, 2025])
+    .range([-innerWidth/2 + 30 , innerWidth/2 - 130])
+
+
   //// SMALL MULTIPLES
    let areaPlot = d3.area()
     .curve(curveNatural)
@@ -143,7 +170,7 @@
 
     let x = d3.scaleLinear()
     .domain([1895, 2025])
-    .range([-innerWidth/2 + 65, innerWidth/2 - 50])
+    .range([-innerWidth/2 + 30, innerWidth/2 - 130])
 
    let ySmallMultiples = d3.scaleLinear()
     .domain([0 , 5.0])
@@ -170,6 +197,27 @@
      return (Math.sqrt((value * Math.pow(size/8,2)) / .4));
   }
 
+  function midYear(start,end){
+    let endYear = Math.min(end, 2021)
+    return start+ (endYear - start)/2;
+  }
+
+  function dotsOutOfRange(mid, zscores, cat){
+    if(mid < 2021){
+      return  d3.pointRadial(xRadial(mid), yRadialLine(zscores.reduce((total, next) => total + Number(next[cat]), 0) / zscores.length))
+    } else {
+      return [0,0]
+    }
+  }
+
+  function dotSizeOutOfRange(incomeValues, cat){
+    if (incomeValues.length >0){
+     return  radius(incomeValues.reduce((total, next) => total + Number(next[cat]), 0) / incomeValues.length)
+   } else {
+    return 0;
+   }
+  }
+
   
   //// PATH AND TWEENING FUNCTIONS
   const tweenOptions = {
@@ -179,7 +227,8 @@
   };
 
   let tweenedPath = tweened(
-    categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)),
+    //categories.map((cat, index) => areaPlotPlain.y0(+d[cat]).y1(d => y(+d[cat]))(RawPercentage2021)),
+    categories.map((cat, index) => areaPlot.x(d => xInitial(+d.Year)).y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage2021)),
     tweenOptions
   );
 
@@ -199,16 +248,25 @@
   );
 
   function makePath(start){
-    if(start >= 2021){ start = 2025 }
+    if(start >= 2021){ start = 2021 }
     return "M"+ d3.pointRadial(xRadial(start), innerRadius) + "L" + d3.pointRadial(xRadial(start), outerRadius - 30)
   }
 
   function makeHREFPath(start, end, shift){
-    if(end >= 2021){ end= 2025; }
-    if(start >= 2021){ start = 2025 }
+    if(end >= 2021){ end= 2021; }
+    if(start >= 2021){ start = 2021 }
     if(start <= 1900){ start = 1900 }
     /*return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)*/
   return "M" + d3.pointRadial(xRadial(start), outerRadius-shift)+ "A" + (outerRadius-shift) +"," + (outerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), outerRadius-shift)
+  }
+
+  function makeHREFArc(start, end, shift){
+    if(end >= 2021){ end= 2021; }
+    if(start >= 2021){ start = 2021 }
+    if(start <= 1900){ start = 1900 }
+    /*return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)*/
+  return "M" + d3.pointRadial(xRadial(start), outerRadius-shift)+ "A" + (outerRadius-shift) +"," + (outerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), outerRadius-shift) + "L 0, 0 L" + d3.pointRadial(xRadial(start), outerRadius-shift) +", Z" 
+
   }
 
   function makeStraightHREFPath(start, end){
@@ -232,12 +290,14 @@
   }));
  
 
- $: yearVals = yearData.map((d,index) => ({
+ /*$: yearVals = yearData.map((d,index) => ({
     value: d.name,
     path: makePath(+d.startYear),
     pathhref: makeStraightHREFPath(+d.startYear, +d.endYear)
 
-  }))
+  }))*/
+
+  $: yearVals = [];
 
  $: xGenVals = [];
 
@@ -248,16 +308,23 @@
 
 //// CHART BUILDING FUNCTIONS
 
-/* function addAreas(){
+ function addAreas(){
 
-          path:areaPlot.y0(d=>y(0)).y1(d => y(+d[cat]))(RawPercentage),
+  tweenedPath.set(categories.map((cat, index) => areaPlot.x(d => xInitial(+d.Year)).y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage2021)))
+
+ yearVals = [{
+    value: 2019,
+    path: makePath(2019),
+    pathhref: makeStraightHREFPath(2016, 2022)
+
+  }]
         
-} */
+} 
  
 
 function addSmallMultipleAreas(){
 
-   tweenedPath.set(categories.map((cat, index) => areaPlot.y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)));
+   tweenedPath.set(categories.map((cat, index) => areaPlot.x(d => x(+d.Year)).y0(d=>ySmallMultiples(index*0.4)).y1(d => ySmallMultiples(+d[cat]+index*0.4))(RawPercentage)));
 
    yearVals = yearData.map((d,index) => ({
     value: d.name,
@@ -280,28 +347,39 @@ function addRadial(){
 
    tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
 
+   /*tweenedStroke.set(categories.map((cat, index) => "transparent"))
+
+   tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))
+
+   tweenedOpacity.set(categories.map((cat, index) => 0.8))   */
+
+  
+}
+
+function addHousingRadial(){
+
+   tweenedPath.set(categories.map((cat, index) => cat == "Housing" ? areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage) : areaRadialPlot.outerRadius(d => yRadial(0))(RawPercentage) ));
+
    tweenedStroke.set(categories.map((cat, index) => "transparent"))
 
    tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))
 
    tweenedOpacity.set(categories.map((cat, index) => 0.8))
 
-   yearVals = yearData.map((d,index) => ({
+
+  yearVals = yearData.map((d,index) => ({
     value: d.name,
     path: makePath(+d.startYear),
     pathhref: makeHREFPath(+d.startYear, +d.endYear, 15)
 
   }))
 
-   xGenVals = [];
-   clickVals = [];
-   medianCircle = [{
+  medianCircle = [{
     radius: innerRadius - 1,
     width: 1,
     stroke: "grey"
    }];
 
-  
 }
 
 function addGenerations(){
@@ -309,7 +387,7 @@ function addGenerations(){
 
    xGenVals = genData.map((d,index) => ({
     value: d.name,
-    path: makePath(+d.startYear +currentAge),
+    path: makeHREFArc(+d.startYear+currentAge -1, +d.endYear+currentAge, 0),
     pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 40)
     }))
 
@@ -381,6 +459,36 @@ function sizeDots(){
 
   console.log(pointData);
 }
+
+function centerDotsonGeneration(){
+
+  let genDots = genData.map((d,index) => ({
+    generation: d.name,
+    startYear:+d.startYear+currentAge,
+    endYear: +d.endYear+currentAge,
+    midPoint: midYear(+d.startYear +currentAge, +d.endYear +currentAge),
+    ZScorevalues: ZScores.filter(f => f.Year >= +d.startYear+currentAge && f.Year < +d.endYear+currentAge),
+    Incomevalues: IncomePercent.filter(f => f.Year >= +d.startYear+currentAge && f.Year < +d.endYear+currentAge)
+    }))
+
+  pointData = genDots.map((d,i) => {
+      return [
+        categories.map(cat => {
+            return {
+              generation: d.generation,
+              category: cat,
+              zscore: d.ZScorevalues.reduce((total, next) => total + Number(next[cat]), 0) / d.ZScorevalues.length,
+              percent: dotSizeOutOfRange(d.Incomevalues, cat),
+              point: dotsOutOfRange(+d.midPoint, d.ZScorevalues, cat),
+              color: colourScaleLine(cat),
+              lucidcolor: "black"
+           }
+          })
+        ]
+    })
+
+  console.log(genDots,pointData);
+}
   
   function resize() {
   }
@@ -390,21 +498,48 @@ function sizeDots(){
 <svelte:window on:resize={resize} />
 
 <svg bind:this={svg} {innerWidth} {innerHeight}
-viewBox = {[-innerWidth/2 - 50, -innerHeight/2 +30, innerWidth, innerHeight]}
+viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
 >
+<g class="axis x-axis generations">
+  {#each xGenVals as tick, i}
+    <path
+        d={tick.path}
+        stroke="#ffffff"
+        fill = "#ffffff"
+        fill-opacity = {i % 2 == 0 ? 0.1 :0.05 }
+        stroke-width = "0"
+        stroke-opacity = "0.8"
+        stroke-dasharray="4"
+      />
+      <path
+        d={tick.pathhref}
+        id = {tick.value}
+        fill={"none"}
+      />
+      <text>
+        <textPath
+        class="ticklabel"
+        text-anchor= "middle"
+        startOffset = {"50%"} 
+        href = {"#"+tick.value}>
+      {tick.value}
+      </textPath>
+    </text>
+  {/each}
+</g>
   <g class = "Areas" >
     
     {#each pathData as path, i}
       <circle 
-      cx= {-innerWidth/2 -35}
+      cx= {innerWidth/2 -115}
       cy= {path.y - 8}
       r={15}
       fill ={path.color}
       />
-      <LucideIcon name ={iconsScaleLine(path.category)} size ={"20px"} color={"black"} strokeWidth={"1px"} x = {-innerWidth/2 - 45 } y = {path.y - 18}/>
+      <LucideIcon name ={iconsScaleLine(path.category)} size ={"20px"} color={"black"} strokeWidth={"1px"} x = {innerWidth/2 - 125 } y = {path.y - 18}/>
       <text
       class="label"
-      x = {-innerWidth/2 - 15 } 
+      x = {innerWidth/2 - 95 } 
       y = {path.y-4}>
       {path.category}
     </text>
@@ -453,38 +588,15 @@ viewBox = {[-innerWidth/2 - 50, -innerHeight/2 +30, innerWidth, innerHeight]}
       <text>
         <textPath
         class="ticklabelyear"
-        startOffset = {10} 
+        dy = {"-0px"}
+        text-anchor= "start"
         href = {"#"+tick.value}>
       {tick.value}
       </textPath>
     </text>
   {/each}
 </g>
-  <g class="axis x-axis generations">
-  {#each xGenVals as tick, i}
-    <path
-       transition:draw={{duration: 2000}}
-        d={tick.path}
-        stroke={"#ffffff"}
-        stroke-width = "3"
-        stroke-opacity = {0.8}
-      />
-      <path
-        d={tick.pathhref}
-        id = {tick.value}
-        fill={"none"}
-      />
-      <text>
-        <textPath
-        class="ticklabel"
-        text-anchor= "middle"
-        startOffset = {"50%"} 
-        href = {"#"+tick.value}>
-      {tick.value}
-      </textPath>
-    </text>
-  {/each}
-</g>
+
 
  <g class="ageSelector">
  {#each clickVals as click}
