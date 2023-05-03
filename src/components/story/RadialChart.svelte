@@ -58,7 +58,7 @@
 
   categories = categories.slice().reverse();
 
-  let justHousingCategories = ["Housing"];
+  //let justHousingCategories = ["Housing"];
 
   const iconsScaleLine = d3.scaleOrdinal().domain(categories)
   .range([ "utensils","home", "shirt","car","ticket", "file-text", "cross", "shower-head", "heart-handshake", "library", "wine", "grip-horizontal"])
@@ -69,7 +69,6 @@
 
     if (scrollPosition == 0){
       addAreas()
-      //addSmallMultipleAreas()
     }
 
     if (scrollPosition == 1){
@@ -90,10 +89,10 @@
 
     if (scrollPosition == 7){
       addZScores()
+      addDots()
     }
 
     if (scrollPosition == 8){
-      addDots()
     }
 
     if (scrollPosition == 10){
@@ -260,6 +259,14 @@
   return "M" + d3.pointRadial(xRadial(start), outerRadius-shift)+ "A" + (outerRadius-shift) +"," + (outerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), outerRadius-shift)
   }
 
+  function tagCurrentGeneration(start, end){
+    if (start < 2023 && end >= 2023){
+      return true;
+    } else {
+      return false;
+    } 
+  }
+
   function makeHREFArc(start, end, shift){
     if(end >= 2021){ end= 2021; }
     if(start >= 2021){ start = 2021 }
@@ -288,22 +295,16 @@
     color: colourScaleLine(d),
     y: ySmallMultiples(index*0.4)
   }));
- 
 
- /*$: yearVals = yearData.map((d,index) => ({
-    value: d.name,
-    path: makePath(+d.startYear),
-    pathhref: makeStraightHREFPath(+d.startYear, +d.endYear)
-
-  }))*/
-
-  $: yearVals = [];
+ $: yearVals = [];
 
  $: xGenVals = [];
 
  $: medianCircle = [];
 
  $: pointData = [];
+
+ $: circleAxis = [];
 
 
 //// CHART BUILDING FUNCTIONS
@@ -336,6 +337,7 @@ function addSmallMultipleAreas(){
    xGenVals = [];
    clickVals = [];
    medianCircle = [];
+   circleAxis = [];
 
    tweenedOpacity.set(categories.map((cat, index) => 1))
 
@@ -347,11 +349,13 @@ function addRadial(){
 
    tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius(d => yRadial(+d[cat]))(RawPercentage)));
 
-   /*tweenedStroke.set(categories.map((cat, index) => "transparent"))
+   tweenedStroke.set(categories.map((cat, index) => "transparent"))
 
    tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)))
 
-   tweenedOpacity.set(categories.map((cat, index) => 0.8))   */
+   tweenedOpacity.set(categories.map((cat, index) => 0.8))  
+
+   pointData = [];
 
   
 }
@@ -380,6 +384,22 @@ function addHousingRadial(){
     stroke: "grey"
    }];
 
+   circleAxis = [{
+    radius: yRadial(0.2),
+    labelLocation: d3.pointRadial(xRadial(1898), yRadial(0.2)),
+    label: "20%"
+   },
+   {
+    radius: yRadial(0.1),
+    labelLocation: d3.pointRadial(xRadial(1898), yRadial(0.1)),
+    label: "10%"
+   },
+   {
+    radius: yRadial(0.3),
+    labelLocation: d3.pointRadial(xRadial(1898), yRadial(0.3)),
+    label: "30%"
+   }];
+
 }
 
 function addGenerations(){
@@ -388,7 +408,8 @@ function addGenerations(){
    xGenVals = genData.map((d,index) => ({
     value: d.name,
     path: makeHREFArc(+d.startYear+currentAge -1, +d.endYear+currentAge, 0),
-    pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 40)
+    pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 40),
+    CurrentGeneration: tagCurrentGeneration(+d.startYear+currentAge, +d.endYear+currentAge)
     }))
 
    clickVals = [currentAge];
@@ -412,6 +433,22 @@ function addZScores(){
    }];
 
    $: pointData = [];
+
+   circleAxis = [{
+    radius: yRadialLine(1),
+    labelLocation: d3.pointRadial(xRadial(1898), yRadialLine(1)),
+    label: "+1 SD"
+   },
+   {
+    radius: yRadialLine(2),
+    labelLocation: d3.pointRadial(xRadial(1898), yRadialLine(2)),
+    label: "+2 SD"
+   },
+   {
+    radius: yRadialLine(3),
+    labelLocation: d3.pointRadial(xRadial(1898), yRadialLine(3)),
+    label: "+3 SD"
+   }];
 
    
 }
@@ -487,7 +524,7 @@ function centerDotsonGeneration(){
         ]
     })
 
-  console.log(genDots,pointData);
+  //console.log(genDots,pointData);
 }
   
   function resize() {
@@ -507,9 +544,7 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
         stroke="#ffffff"
         fill = "#ffffff"
         fill-opacity = {i % 2 == 0 ? 0.1 :0.05 }
-        stroke-width = "0"
-        stroke-opacity = "0.8"
-        stroke-dasharray="4"
+        stroke-width = {tick.CurrentGeneration ? 1: 0}
       />
       <path
         d={tick.pathhref}
@@ -569,15 +604,37 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
   </g>
   <g class="background circle">
   {#each medianCircle as circle, i}
-  <circle 
-  cx="0" 
-  cy="0" 
-  r={circle.radius}
-  stroke ={circle.stroke}
-  stroke-width = {circle.width} />
-
+    <circle 
+    cx="0" 
+    cy="0" 
+    r={circle.radius}
+    stroke ={circle.stroke}
+    stroke-width = {circle.width} />
   {/each}
-</g>
+  </g>
+  <g class="circleAxis">
+    {#each circleAxis as circle, i}
+      <circle 
+      cx="0" 
+      cy="0" 
+      fill = "transparent"
+      r={circle.radius}
+      stroke = "#ffffff"
+      stroke-width = "1"
+      stroke-opacity = "0.8"
+      stroke-dasharray="4"
+        />
+      <text
+      class="circleAxisLabel"
+      x = {0} 
+      y = {-5}
+      text-anchor = "middle"
+      transform = {"translate(" + +circle.labelLocation[0] + "," + +circle.labelLocation[1] + ") rotate(10)"}
+      >
+      {circle.label}
+    </text>
+    {/each}
+  </g>
   <g class="axis x-axis year">
   {#each yearVals as tick, i}
       <path
@@ -600,7 +657,7 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
 
  <g class="ageSelector">
  {#each clickVals as click}
-  <text
+   <text
       class="clickButton"
       x = {-40} 
       y = {5}
@@ -658,6 +715,12 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
   .ticklabelyear{
     fill: white;
     opacity: 0.6;
+    font-size: 10px;
+  }
+
+  .circleAxisLabel{
+    fill: white;
+    opacity: 1;
     font-size: 10px;
   }
 
