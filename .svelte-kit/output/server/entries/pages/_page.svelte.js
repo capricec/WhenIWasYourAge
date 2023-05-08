@@ -93,14 +93,19 @@ const Intro4 = "But what was it really like back then?  When did people move out
 const Intro5 = "To answer all those questions we’ve analyzed historical consumer expenditure surveys, nationwide household surveys conducted by the U.S. Bureau of Labor Statistics, to identify once and for all what each generation actually gets to complain about.";
 const Intro6 = "The surveys, taken since 1888, track the share of household income and expenses for 12 main categories.";
 const Scrolly = {
-  Scroll1: "There are some clear patterns we can see just by looking at this data.  Food and apparel share of expenses have decreased substantially over the past century, while transportation and housing’s share have increased.",
-  Scroll2: "But how can we compare these expenses across generations? “When I was your age” implies that we know your age and the age of the person musing.",
-  Scroll3: "Starting with the US median age of 38, we’ve partitioned the chart by generation, highlighting the years in which that generation was also 38.  The chart is adjustable should you want to personalize the experience to your age from here on out.",
-  Scroll4: "Now that we can see the generations, we still need to see what expenses are relatively larger across the generations from another.",
-  Scroll5: "One approach is to look at the average value for each category over time and compare how far away each generations’ expenses are from that median value.",
-  Scroll6: "The values above the median for each time period are the expense categories that were the most burdensome relative to the other generations. The further they are from the center circle, the more burdensome they were for that time period.",
-  Scroll7: "But this method can only show that a category was relatively more expensive, not the actual economic burden that category creates. To do that, we can calculate the % of income that is tied up in these top burdens.",
-  Scroll8: "The largest values here are the categories that are statistically more burdensome AND have the largest economic cost for each generation.  These are the items that can officially be complained about!"
+  Scroll1: "Starting with the year I bought my house, 2019, we can look at the percentage of total expense that was spent on each category. For the average American, out of 100% of income, housing is the largest expense followed by transportation and insurance.",
+  Scroll2: "Expanding this to show the data from 1900 - 2021, we can see how these expenses have changed over time.",
+  Scroll3: "There are some clear patterns we can see just by looking at this data. The average American spent a much larger percentage of their income on food and apparel in 1900.  While transportation and housing have taken up an increasing amount of household budget since then.",
+  Scroll4: "But how can we compare these expenses across generations? “When I was your age” implies that we know your age and the age of the person musing.",
+  Scroll5: "Let’s look at housing’s share of income.  It started this century at a little over 20% of income.  But we can see that by 2021 it takes up over 30% of income.  Now let’s add in the generations.",
+  Scroll6: "Starting with the US median age of 38, the chart is now partitioned by the years that each generation was also 38. You are in the highlighted slice at the top of the chart. Adjust your age to personalize the experience from here on out.",
+  Scroll7: "Adding in the remaining categories, we can now see which expense was took up the largest amount of income for each generation.",
+  Scroll8: "But this method can only take us so far, as some expense categories – housing for example – are expected to take up more share of our income no matter when you were born.",
+  Scroll9: "What we need is a way to show when each category took up the LARGEST share of income compared to the overall average share.",
+  Scroll10: "One approach is to look at the average value for each category over time and compare how far away each generations’ expenses are from that median value.",
+  Scroll11: "The values furthest away from the center of the circle are the expense categories that were the most burdensome relative to the other generations. The further above the median they are, the more burdensome they were for that time period.",
+  Scroll12: "But this method can only show that a category was relatively more expensive, not the actual economic burden that category creates. To do that, we can calculate the % of income that is tied up in these top burdens.",
+  Scroll13: "The largest values here are the categories that are statistically more burdensome AND have the largest economic cost for each generation.  These are the items that can officially be complained about!"
 };
 const Outro1 = "Now I’m sure there are plenty of other things outside of economics that can be relayed ‘when I was your age’ style. And there is no denying that quality of life on a variety of measures has increased every generation.";
 const Outro2 = "But now, officially, you know what you (and your musing family members) can complain about!";
@@ -120,7 +125,7 @@ const scrollState = writable(void 0);
 const setAge = writable(38);
 const Story_Scrolly_svelte_svelte_type_style_lang = "";
 const css$5 = {
-  code: ".step.svelte-1qxq74x.svelte-1qxq74x{height:80vh;background:none;text-align:center}.scrollyLeft.svelte-1qxq74x.svelte-1qxq74x{height:auto;margin-bottom:80vh;position:relative;width:60%;margin-left:calc(40%);background:black;border:1px solid white;padding:20px;z-index:10;text-align:left}.step.svelte-1qxq74x p.svelte-1qxq74x{padding:1rem}@media(max-width: 600px){.scrollyLeft.svelte-1qxq74x.svelte-1qxq74x{height:auto;margin-bottom:80vh;width:auto;background:black;padding:10px}}",
+  code: ".step.svelte-fm2lrw.svelte-fm2lrw{height:80vh;background:none;text-align:center}.scrollyLeft.svelte-fm2lrw.svelte-fm2lrw{height:auto;margin-bottom:80vh;position:relative;width:60%;margin-right:calc(40%);background:black;border:1px solid white;padding:20px;z-index:10;text-align:left}.step.svelte-fm2lrw p.svelte-fm2lrw{padding:1rem}@media(max-width: 600px){.scrollyLeft.svelte-fm2lrw.svelte-fm2lrw{height:auto;margin-bottom:80vh;width:auto;background:black;padding:10px}}",
   map: null
 };
 const Story_Scrolly = create_ssr_component(($$result, $$props, $$bindings, slots) => {
@@ -151,12 +156,17 @@ const Story_Scrolly = create_ssr_component(($$result, $$props, $$bindings, slots
               "Scroll5",
               "Scroll6",
               "Scroll7",
-              "Scroll8"
+              "Scroll8",
+              "Scroll9",
+              "Scroll10",
+              "Scroll11",
+              "Scroll12",
+              "Scroll13"
             ],
             (text, i) => {
               let active = $scrollState === i;
               return `
-			<div class="${["step scrollyLeft svelte-1qxq74x", active ? "active" : ""].join(" ").trim()}"><p class="${"svelte-1qxq74x"}">${escape(copy.Scrolly[text])}</p>
+			<div class="${["step scrollyLeft svelte-fm2lrw", active ? "active" : ""].join(" ").trim()}"><p class="${"svelte-fm2lrw"}">${escape(copy.Scrolly[text])}</p>
 			</div>`;
             }
           )}`;
@@ -1247,13 +1257,20 @@ function tweened(value, defaults = {}) {
 }
 const RadialChart_svelte_svelte_type_style_lang = "";
 const css$2 = {
-  code: "svg.svelte-q13yx{float:left}.label.svelte-q13yx,.ticklabel.svelte-q13yx{fill:white;font-size:10px;word-wrap:break-word;width:20px}.ticklabel.svelte-q13yx{font-size:14px}.ticklabelyear.svelte-q13yx{fill:white;opacity:0.6;font-size:10px}.ageLabel.svelte-q13yx{font-size:65px;fill:white;letter-spacing:-5px}.ageLabeltext.svelte-q13yx{font-size:10px;fill:white}.clickButton.svelte-q13yx{font-size:10px;fill:white;cursor:pointer}@media(max-width: 600px){}",
+  code: "svg.svelte-x5omys{float:left}.label.svelte-x5omys,.ticklabel.svelte-x5omys,.areaLabel.svelte-x5omys{fill:white;font-size:10px;word-wrap:break-word;width:20px}.ticklabel.svelte-x5omys{font-size:14px}.ticklabelyear.svelte-x5omys{fill:white;opacity:0.6;font-size:10px}.circleAxisLabel.svelte-x5omys{fill:white;opacity:1;font-size:10px}.ageLabel.svelte-x5omys{font-size:65px;fill:white;letter-spacing:-5px}.ageLabeltext.svelte-x5omys{font-size:10px;fill:white}.clickButton.svelte-x5omys{font-size:10px;fill:white;cursor:pointer}@media(max-width: 600px){}",
   map: null
 };
 let innerRadius = 120;
 function midYear(start, end) {
-  let endYear = Math.min(end, 2025);
+  let endYear = Math.min(end, 2021);
   return start + (endYear - start) / 2;
+}
+function tagCurrentGeneration(start, end) {
+  if (start < 2023 && end >= 2023) {
+    return true;
+  } else {
+    return false;
+  }
 }
 const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let pathData;
@@ -1261,6 +1278,9 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
   let xGenVals;
   let medianCircle;
   let pointData;
+  let circleAxis;
+  let multipleLabels;
+  let areaLabels;
   let $tweenedOpacity, $$unsubscribe_tweenedOpacity;
   let $tweenedStroke, $$unsubscribe_tweenedStroke;
   let $tweenedColor, $$unsubscribe_tweenedColor;
@@ -1281,6 +1301,11 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
   const ZScores = getContext("ZScores");
   const genData = getContext("genData");
   const yearData = getContext("yearData");
+  let RawPercentage2021 = RawPercentage.slice().filter((f) => f.Year == "2021");
+  let newYear = JSON.parse(JSON.stringify(RawPercentage2021[0]));
+  RawPercentage2021.push(newYear);
+  RawPercentage2021[1].Year = "2015";
+  console.log(RawPercentage);
   let scrollPosition;
   let currentAge;
   scrollState.subscribe((value) => {
@@ -1324,21 +1349,25 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
   ]);
   function changeState(scrollPosition2) {
     if (scrollPosition2 == 0) {
-      addSmallMultipleAreas();
+      addAreas();
     }
     if (scrollPosition2 == 1) {
-      addRadial();
-    }
-    if (scrollPosition2 == 2) {
-      addGenerations();
+      addSmallMultipleAreas();
     }
     if (scrollPosition2 == 4) {
-      addZScores();
+      addHousingRadial();
+    }
+    if (scrollPosition2 == 6) {
+      addRadial();
     }
     if (scrollPosition2 == 5) {
+      addGenerations();
+    }
+    if (scrollPosition2 == 9) {
+      addZScores();
       addDots();
     }
-    if (scrollPosition2 == 7) {
+    if (scrollPosition2 == 12) {
       sizeDots();
       centerDotsonGeneration();
     }
@@ -1363,10 +1392,11 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     "#777777"
   ]);
   let areaRadialPlot = d3.areaRadial().curve(curveNatural).angle((d) => xRadial(+d.Year)).innerRadius((d) => yRadial(0)).outerRadius((d) => yRadial(+d.Food));
-  let xRadial = d3.scaleLinear().domain([1895, 2025]).range([0, 2 * Math.PI]);
+  let xRadial = d3.scaleLinear().domain([1895, 2021]).range([0, 2 * Math.PI]);
   let yRadial = d3.scaleLinear().domain([0, 0.5]).range([innerRadius, outerRadius]);
+  let xInitial = d3.scaleLinear().domain([1895, 2025]).range([-innerWidth / 2 + 30, innerWidth / 2 - 130]);
   let areaPlot = d3.area().curve(curveNatural).x((d) => x(+d.Year)).y0((d) => y(0)).y1((d) => y(+d.Food));
-  let x = d3.scaleLinear().domain([1895, 2025]).range([-innerWidth / 2 + 65, innerWidth / 2 - 50]);
+  let x = d3.scaleLinear().domain([1895, 2025]).range([-innerWidth / 2 + 50, innerWidth / 2 - 130]);
   let ySmallMultiples = d3.scaleLinear().domain([0, 5]).range([innerHeight / 2 - 100, -innerHeight / 2]);
   let lineRadialPlot = d3.lineRadial().curve(curveNatural).angle((d) => xRadial(+d.Year)).radius((d) => yRadialLine(+d.Food));
   let yRadialLine = d3.scaleLinear().domain([0, 4]).range([innerRadius, outerRadius]);
@@ -1374,7 +1404,7 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     return Math.sqrt(value * Math.pow(size / 8, 2) / 0.4);
   }
   function dotsOutOfRange(mid, zscores, cat) {
-    if (mid < 2025) {
+    if (mid < 2021) {
       return d3.pointRadial(xRadial(mid), yRadialLine(zscores.reduce((total, next) => total + Number(next[cat]), 0) / zscores.length));
     } else {
       return [0, 0];
@@ -1392,7 +1422,11 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     duration: 2e3,
     easing: cubicOut
   };
-  let tweenedPath = tweened(categories.map((cat, index) => areaPlot.y0((d) => ySmallMultiples(index * 0.4)).y1((d) => ySmallMultiples(+d[cat] + index * 0.4))(RawPercentage)), tweenOptions);
+  let tweenedPath = tweened(
+    //categories.map((cat, index) => areaPlotPlain.y0(+d[cat]).y1(d => y(+d[cat]))(RawPercentage2021)),
+    categories.map((cat, index) => areaPlot.x((d) => xInitial(+d.Year)).y0((d) => ySmallMultiples(index * 0.4)).y1((d) => ySmallMultiples(+d[cat] + index * 0.4))(RawPercentage2021)),
+    tweenOptions
+  );
   $$unsubscribe_tweenedPath = subscribe(tweenedPath, (value) => $tweenedPath = value);
   let tweenedColor = tweened(categories.map((cat, index) => colourScaleLine(cat)), tweenOptions);
   $$unsubscribe_tweenedColor = subscribe(tweenedColor, (value) => $tweenedColor = value);
@@ -1402,21 +1436,33 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
   $$unsubscribe_tweenedOpacity = subscribe(tweenedOpacity, (value) => $tweenedOpacity = value);
   function makePath(start) {
     if (start >= 2021) {
-      start = 2025;
+      start = 2021;
     }
     return "M" + d3.pointRadial(xRadial(start), innerRadius) + "L" + d3.pointRadial(xRadial(start), outerRadius - 30);
   }
   function makeHREFPath(start, end, shift) {
-    if (end >= 2021) {
-      end = 2025;
+    if (end >= 2023) {
+      end = 2023;
     }
-    if (start >= 2021) {
-      start = 2025;
+    if (start >= 2023) {
+      start = 2023;
     }
     if (start <= 1900) {
       start = 1900;
     }
     return "M" + d3.pointRadial(xRadial(start), outerRadius - shift) + "A" + (outerRadius - shift) + "," + (outerRadius - shift) + " 0,0,1 " + d3.pointRadial(xRadial(end), outerRadius - shift);
+  }
+  function makeHREFArc(start, end, shift) {
+    if (end >= 2021) {
+      end = 2021;
+    }
+    if (start >= 2021) {
+      start = 2021;
+    }
+    if (start <= 1900) {
+      start = 1900;
+    }
+    return "M" + d3.pointRadial(xRadial(start), outerRadius - shift) + "A" + (outerRadius - shift) + "," + (outerRadius - shift) + " 0,0,1 " + d3.pointRadial(xRadial(end), outerRadius - shift) + "L 0, 0 L" + d3.pointRadial(xRadial(start), outerRadius - shift) + ", Z";
   }
   function makeStraightHREFPath(start, end) {
     if (end >= 2021) {
@@ -1427,8 +1473,28 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     }
     return "M" + x(start) + ", " + (innerHeight / 2 - 80) + " h " + (x(end) - x(start));
   }
+  function addAreas() {
+    tweenedPath.set(categories.map((cat, index) => areaPlot.x((d) => xInitial(+d.Year)).y0((d) => ySmallMultiples(index * 0.4)).y1((d) => ySmallMultiples(+d[cat] + index * 0.4))(RawPercentage2021)));
+    yearVals = [
+      {
+        value: 2019,
+        path: makePath(2019),
+        pathhref: makeStraightHREFPath(2016, 2022)
+      }
+    ];
+    multipleLabels = RawPercentage2021[0];
+    multipleLabels = categories.map((d, index) => ({
+      category: d,
+      x: xInitial(2014),
+      y: ySmallMultiples(index * 0.4),
+      value: Number(+RawPercentage2021[0][d]).toLocaleString(void 0, {
+        style: "percent",
+        minimumFractionDigits: 0
+      })
+    }));
+  }
   function addSmallMultipleAreas() {
-    tweenedPath.set(categories.map((cat, index) => areaPlot.y0((d) => ySmallMultiples(index * 0.4)).y1((d) => ySmallMultiples(+d[cat] + index * 0.4))(RawPercentage)));
+    tweenedPath.set(categories.map((cat, index) => areaPlot.x((d) => x(+d.Year)).y0((d) => ySmallMultiples(index * 0.4)).y1((d) => ySmallMultiples(+d[cat] + index * 0.4))(RawPercentage)));
     yearVals = yearData.map((d, index) => ({
       value: d.name,
       path: makePath(+d.startYear),
@@ -1437,11 +1503,38 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     xGenVals = [];
     clickVals = [];
     medianCircle = [];
+    circleAxis = [];
     tweenedOpacity.set(categories.map((cat, index) => 1));
-    console.log(pointData);
+    multipleLabels = [];
+    areaLabels = [
+      {
+        x: x(1900),
+        y: ySmallMultiples(0),
+        value: Number(0).toLocaleString(void 0, {
+          style: "percent",
+          minimumFractionDigits: 0
+        })
+      },
+      {
+        x: x(1900),
+        y: ySmallMultiples(0.4),
+        value: Number(0.4).toLocaleString(void 0, {
+          style: "percent",
+          minimumFractionDigits: 0
+        })
+      }
+    ];
   }
   function addRadial() {
     tweenedPath.set(categories.map((cat, index) => areaRadialPlot.outerRadius((d) => yRadial(+d[cat]))(RawPercentage)));
+    tweenedStroke.set(categories.map((cat, index) => "transparent"));
+    tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)));
+    tweenedOpacity.set(categories.map((cat, index) => 0.8));
+    pointData = [];
+    areaLabels = [];
+  }
+  function addHousingRadial() {
+    tweenedPath.set(categories.map((cat, index) => cat == "Housing" ? areaRadialPlot.outerRadius((d) => yRadial(+d[cat]))(RawPercentage) : areaRadialPlot.outerRadius((d) => yRadial(0))(RawPercentage)));
     tweenedStroke.set(categories.map((cat, index) => "transparent"));
     tweenedColor.set(categories.map((cat, index) => colourScaleLine(cat)));
     tweenedOpacity.set(categories.map((cat, index) => 0.8));
@@ -1450,8 +1543,7 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
       path: makePath(+d.startYear),
       pathhref: makeHREFPath(+d.startYear, +d.endYear, 15)
     }));
-    xGenVals = [];
-    clickVals = [];
+    areaLabels = [];
     medianCircle = [
       {
         radius: innerRadius - 1,
@@ -1459,12 +1551,30 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
         stroke: "grey"
       }
     ];
+    circleAxis = [
+      {
+        radius: yRadial(0.2),
+        labelLocation: d3.pointRadial(xRadial(1898), yRadial(0.2)),
+        label: "20%"
+      },
+      {
+        radius: yRadial(0.1),
+        labelLocation: d3.pointRadial(xRadial(1898), yRadial(0.1)),
+        label: "10%"
+      },
+      {
+        radius: yRadial(0.3),
+        labelLocation: d3.pointRadial(xRadial(1898), yRadial(0.3)),
+        label: "30%"
+      }
+    ];
   }
   function addGenerations() {
     xGenVals = genData.map((d, index) => ({
       value: d.name,
-      path: makePath(+d.startYear + currentAge),
-      pathhref: makeHREFPath(+d.startYear + currentAge, +d.endYear + currentAge, 40)
+      path: makeHREFArc(+d.startYear + currentAge - 1, +d.endYear + currentAge, 0),
+      pathhref: makeHREFPath(+d.startYear + currentAge - 3, +d.endYear + currentAge + 2, 40),
+      CurrentGeneration: tagCurrentGeneration(+d.startYear + currentAge, +d.endYear + currentAge)
     }));
     clickVals = [currentAge];
   }
@@ -1481,6 +1591,23 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
       }
     ];
     pointData = [];
+    circleAxis = [
+      {
+        radius: yRadialLine(1),
+        labelLocation: d3.pointRadial(xRadial(1898), yRadialLine(1)),
+        label: "+1 SD"
+      },
+      {
+        radius: yRadialLine(2),
+        labelLocation: d3.pointRadial(xRadial(1898), yRadialLine(2)),
+        label: "+2 SD"
+      },
+      {
+        radius: yRadialLine(3),
+        labelLocation: d3.pointRadial(xRadial(1898), yRadialLine(3)),
+        label: "+3 SD"
+      }
+    ];
   }
   function addDots() {
     pointData = ZScores.map((d, i) => {
@@ -1498,7 +1625,6 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
         })
       ];
     });
-    console.log(pointData);
   }
   function sizeDots() {
     tweenedStroke.set(categories.map((cat, index) => "transparent"));
@@ -1517,7 +1643,6 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
         })
       ];
     });
-    console.log(pointData);
   }
   function centerDotsonGeneration() {
     let genDots = genData.map((d, index) => ({
@@ -1543,7 +1668,6 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
         })
       ];
     });
-    console.log(genDots, pointData);
   }
   $$result.css.add(css$2);
   pathData = categories.map((d, index) => ({
@@ -1555,22 +1679,25 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     color: colourScaleLine(d),
     y: ySmallMultiples(index * 0.4)
   }));
-  yearVals = yearData.map((d, index) => ({
-    value: d.name,
-    path: makePath(+d.startYear),
-    pathhref: makeStraightHREFPath(+d.startYear, +d.endYear)
-  }));
+  yearVals = [];
   xGenVals = [];
   medianCircle = [];
   pointData = [];
+  circleAxis = [];
+  multipleLabels = [];
+  areaLabels = [];
   $$unsubscribe_tweenedOpacity();
   $$unsubscribe_tweenedStroke();
   $$unsubscribe_tweenedColor();
   $$unsubscribe_tweenedPath();
   return `
 
-<svg${add_attribute("innerwidth", innerWidth, 0)}${add_attribute("innerheight", innerHeight, 0)}${add_attribute("viewBox", [-innerWidth / 2 - 50, -innerHeight / 2 + 30, innerWidth, innerHeight], 0)} class="${"svelte-q13yx"}"${add_attribute("this", svg, 0)}><g class="${"Areas"}">${each(pathData, (path, i) => {
-    return `<circle${add_attribute("cx", -innerWidth / 2 - 35, 0)}${add_attribute("cy", path.y - 8, 0)}${add_attribute("r", 15, 0)}${add_attribute("fill", path.color, 0)}></circle>
+<svg${add_attribute("innerwidth", innerWidth, 0)}${add_attribute("innerheight", innerHeight, 0)}${add_attribute("viewBox", [-innerWidth / 2 + 50, -innerHeight / 2 + 30, innerWidth, innerHeight], 0)} class="${"svelte-x5omys"}"${add_attribute("this", svg, 0)}><g class="${"axis x-axis generations"}">${each(xGenVals, (tick, i) => {
+    return `<path${add_attribute("d", tick.path, 0)} stroke="${"#ffffff"}" fill="${"#ffffff"}"${add_attribute("fill-opacity", i % 2 == 0 ? 0.1 : 0.05, 0)}${add_attribute("stroke-width", tick.CurrentGeneration ? 1 : 0, 0)}></path>
+      <path${add_attribute("d", tick.pathhref, 0)}${add_attribute("id", tick.value, 0)}${add_attribute("fill", "none", 0)}></path>
+      <text><textPath class="${"ticklabel svelte-x5omys"}" text-anchor="${"middle"}"${add_attribute("startOffset", "50%", 0)}${add_attribute("href", "#" + tick.value, 0)}>${escape(tick.value)}</textPath></text>`;
+  })}</g><g class="${"Areas"}">${each(pathData, (path, i) => {
+    return `<circle${add_attribute("cx", innerWidth / 2 - 115, 0)}${add_attribute("cy", path.y - 8, 0)}${add_attribute("r", 15, 0)}${add_attribute("fill", path.color, 0)}></circle>
       ${validate_component(LucideIcon, "LucideIcon").$$render(
       $$result,
       {
@@ -1578,15 +1705,19 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
         size: "20px",
         color: "black",
         strokeWidth: "1px",
-        x: -innerWidth / 2 - 45,
+        x: innerWidth / 2 - 125,
         y: path.y - 18
       },
       {},
       {}
     )}
-      <text class="${"label svelte-q13yx"}"${add_attribute("x", -innerWidth / 2 - 15, 0)}${add_attribute("y", path.y - 4, 0)}>${escape(path.category)}</text>
+      <text class="${"label svelte-x5omys"}"${add_attribute("x", innerWidth / 2 - 95, 0)}${add_attribute("y", path.y - 4, 0)}>${escape(path.category)}</text>
       
       <path${add_attribute("d", path.path, 0)}${add_attribute("stroke", path.stroke, 0)}${add_attribute("stroke-width", 3, 0)}${add_attribute("fill", path.fill, 0)}${add_attribute("fill-opacity", path.opacity, 0)}></path>`;
+  })}</g><g class="${"areaLabels"}">${each(areaLabels, (label, i) => {
+    return `<text class="${"areaLabel svelte-x5omys"}"${add_attribute("x", label.x + 4, 0)}${add_attribute("y", label.y + 3, 0)} text-anchor="${"end"}">${escape(label.value + "   -")}</text>`;
+  })}${each(multipleLabels, (label, i) => {
+    return `<text class="${"areaLabel svelte-x5omys"}"${add_attribute("x", label.x, 0)}${add_attribute("y", label.y, 0)} text-anchor="${"end"}">${escape(label.value)}</text>`;
   })}</g><g class="${"Dots"}">${each(pointData, (year, j) => {
     return `${each(year[0], (dot, k) => {
       return `<circle${add_attribute("cx", dot.point[0], 0)}${add_attribute("cy", dot.point[1], 0)}${add_attribute("r", dot.percent, 0)}${add_attribute("fill", dot.color, 0)}></circle>
@@ -1606,18 +1737,17 @@ const RadialChart = create_ssr_component(($$result, $$props, $$bindings, slots) 
     })}`;
   })}</g><g class="${"background circle"}">${each(medianCircle, (circle, i) => {
     return `<circle cx="${"0"}" cy="${"0"}"${add_attribute("r", circle.radius, 0)}${add_attribute("stroke", circle.stroke, 0)}${add_attribute("stroke-width", circle.width, 0)}></circle>`;
+  })}</g><g class="${"circleAxis"}">${each(circleAxis, (circle, i) => {
+    return `<circle cx="${"0"}" cy="${"0"}" fill="${"transparent"}"${add_attribute("r", circle.radius, 0)} stroke="${"#ffffff"}" stroke-width="${"1"}" stroke-opacity="${"0.8"}" stroke-dasharray="${"4"}"></circle>
+      <text class="${"circleAxisLabel svelte-x5omys"}"${add_attribute("x", 0, 0)}${add_attribute("y", -5, 0)} text-anchor="${"middle"}"${add_attribute("transform", "translate(" + +circle.labelLocation[0] + "," + +circle.labelLocation[1] + ") rotate(10)", 0)}>${escape(circle.label)}</text>`;
   })}</g><g class="${"axis x-axis year"}">${each(yearVals, (tick, i) => {
     return `<path${add_attribute("d", tick.pathhref, 0)}${add_attribute("id", tick.value, 0)}${add_attribute("fill", "none", 0)}></path>
-      <text><textPath class="${"ticklabelyear svelte-q13yx"}"${add_attribute("startOffset", 10, 0)} text-anchor="${"middle"}"${add_attribute("href", "#" + tick.value, 0)}>${escape(tick.value)}</textPath></text>`;
-  })}</g><g class="${"axis x-axis generations"}">${each(xGenVals, (tick, i) => {
-    return `<path${add_attribute("d", tick.path, 0)}${add_attribute("stroke", "#ffffff", 0)} stroke-width="${"3"}"${add_attribute("stroke-opacity", 0.8, 0)}></path>
-      <path${add_attribute("d", tick.pathhref, 0)}${add_attribute("id", tick.value, 0)}${add_attribute("fill", "none", 0)}></path>
-      <text><textPath class="${"ticklabel svelte-q13yx"}" text-anchor="${"middle"}"${add_attribute("startOffset", "50%", 0)}${add_attribute("href", "#" + tick.value, 0)}>${escape(tick.value)}</textPath></text>`;
+      <text><textPath class="${"ticklabelyear svelte-x5omys"}"${add_attribute("dy", "-0px", 0)} text-anchor="${"start"}"${add_attribute("href", "#" + tick.value, 0)}>${escape(tick.value)}</textPath></text>`;
   })}</g><g class="${"ageSelector"}">${each(clickVals, (click) => {
-    return `<text class="${"clickButton svelte-q13yx"}"${add_attribute("x", -40, 0)}${add_attribute("y", 5, 0)} text-anchor="${"middle"}">${escape("◀")}</text>
-    <text class="${"ageLabeltext svelte-q13yx"}"${add_attribute("x", 0, 0)}${add_attribute("y", -30, 0)} text-anchor="${"middle"}">${escape("Your Age")}</text>
-    <text class="${"ageLabel svelte-q13yx"}"${add_attribute("x", 0, 0)}${add_attribute("y", 25, 0)} text-anchor="${"middle"}">${escape(currentAge)}</text>
-    <text class="${"clickButton svelte-q13yx"}"${add_attribute("x", 45, 0)}${add_attribute("y", 5, 0)} text-anchor="${"middle"}">${escape("▶")}</text>`;
+    return `<text class="${"clickButton svelte-x5omys"}"${add_attribute("x", -40, 0)}${add_attribute("y", 5, 0)} text-anchor="${"middle"}">${escape("◀")}</text>
+    <text class="${"ageLabeltext svelte-x5omys"}"${add_attribute("x", 0, 0)}${add_attribute("y", -30, 0)} text-anchor="${"middle"}">${escape("Your Age")}</text>
+    <text class="${"ageLabel svelte-x5omys"}"${add_attribute("x", 0, 0)}${add_attribute("y", 25, 0)} text-anchor="${"middle"}">${escape(currentAge)}</text>
+    <text class="${"clickButton svelte-x5omys"}"${add_attribute("x", 45, 0)}${add_attribute("y", 5, 0)} text-anchor="${"middle"}">${escape("▶")}</text>`;
   })}</g></svg>`;
 });
 const BuildingChart_svelte_svelte_type_style_lang = "";
@@ -1675,7 +1805,7 @@ const Index = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 function version() {
   console.log("--- --- --- --- --- ---");
   console.log(`svelte-starter: ${"5.0.9"}`);
-  console.log(`build: ${"2023-04-27-08:12"}`);
+  console.log(`build: ${"2023-05-04-09:55"}`);
   console.log("--- --- --- --- --- ---");
 }
 const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {

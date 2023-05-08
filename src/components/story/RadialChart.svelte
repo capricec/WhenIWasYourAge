@@ -87,15 +87,12 @@
       addGenerations()
     }
 
-    if (scrollPosition == 7){
+    if (scrollPosition == 9){
       addZScores()
       addDots()
     }
 
-    if (scrollPosition == 8){
-    }
-
-    if (scrollPosition == 10){
+    if (scrollPosition == 12){
       sizeDots()
       centerDotsonGeneration()
     }
@@ -109,13 +106,13 @@
     if(value == "increase"){
       setAge.update(n => n + 1);
       addGenerations();
-      if(scrollPosition > 6 || scrollPosition == undefined){
+      if(scrollPosition > 11 || scrollPosition == undefined){
         centerDotsonGeneration()
       }
     } else {
       setAge.update(n => n - 1);
       addGenerations();
-      if(scrollPosition > 6 || scrollPosition == undefined){
+      if(scrollPosition > 11 || scrollPosition == undefined){
         centerDotsonGeneration()
       }
     }
@@ -169,7 +166,7 @@
 
     let x = d3.scaleLinear()
     .domain([1895, 2025])
-    .range([-innerWidth/2 + 30, innerWidth/2 - 130])
+    .range([-innerWidth/2 + 50, innerWidth/2 - 130])
 
    let ySmallMultiples = d3.scaleLinear()
     .domain([0 , 5.0])
@@ -252,8 +249,8 @@
   }
 
   function makeHREFPath(start, end, shift){
-    if(end >= 2021){ end= 2021; }
-    if(start >= 2021){ start = 2021 }
+    if(end >= 2023){ end= 2023; }
+    if(start >= 2023){ start = 2023 }
     if(start <= 1900){ start = 1900 }
     /*return "M" + d3.pointRadial(xRadial(start), innerRadius-shift)+ "A" + (innerRadius-shift) +"," + (innerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), innerRadius-shift)*/
   return "M" + d3.pointRadial(xRadial(start), outerRadius-shift)+ "A" + (outerRadius-shift) +"," + (outerRadius-shift)+ " 0,0,1 "+ d3.pointRadial(xRadial(end), outerRadius-shift)
@@ -306,6 +303,10 @@
 
  $: circleAxis = [];
 
+ $: multipleLabels = [];
+
+ $: areaLabels = [];
+
 
 //// CHART BUILDING FUNCTIONS
 
@@ -319,6 +320,15 @@
     pathhref: makeStraightHREFPath(2016, 2022)
 
   }]
+
+  multipleLabels = RawPercentage2021[0];
+
+  multipleLabels = categories.map((d, index) => ({
+    category: d,
+    x: xInitial(2014),
+    y: ySmallMultiples(index*0.4),
+    value: Number(+RawPercentage2021[0][d]).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})
+  }));
         
 } 
  
@@ -339,9 +349,23 @@ function addSmallMultipleAreas(){
    medianCircle = [];
    circleAxis = [];
 
-   tweenedOpacity.set(categories.map((cat, index) => 1))
+   tweenedOpacity.set(categories.map((cat, index) => 1));
+   multipleLabels = [];
 
-   console.log(pointData);
+   areaLabels = [
+    {
+    x: x(1900),
+    y: ySmallMultiples(0),
+    value: Number(0).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})
+    },
+    {
+    x: x(1900),
+    y: ySmallMultiples(0.4),
+    value: Number(0.4).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:0})
+   }
+   ];
+
+   //console.log(pointData);
 
 }
 
@@ -356,6 +380,7 @@ function addRadial(){
    tweenedOpacity.set(categories.map((cat, index) => 0.8))  
 
    pointData = [];
+   areaLabels = [];
 
   
 }
@@ -377,6 +402,9 @@ function addHousingRadial(){
     pathhref: makeHREFPath(+d.startYear, +d.endYear, 15)
 
   }))
+
+  areaLabels = [];
+
 
   medianCircle = [{
     radius: innerRadius - 1,
@@ -408,7 +436,7 @@ function addGenerations(){
    xGenVals = genData.map((d,index) => ({
     value: d.name,
     path: makeHREFArc(+d.startYear+currentAge -1, +d.endYear+currentAge, 0),
-    pathhref: makeHREFPath(+d.startYear+currentAge, +d.endYear+currentAge, 40),
+    pathhref: makeHREFPath(+d.startYear+currentAge-3, +d.endYear+currentAge+2, 40),
     CurrentGeneration: tagCurrentGeneration(+d.startYear+currentAge, +d.endYear+currentAge)
     }))
 
@@ -471,7 +499,7 @@ function addDots(){
         ]
       })
 
-  console.log(pointData);
+  //console.log(pointData);
 }
 
 function sizeDots(){
@@ -494,7 +522,7 @@ function sizeDots(){
         ]
       })
 
-  console.log(pointData);
+  //console.log(pointData);
 }
 
 function centerDotsonGeneration(){
@@ -563,7 +591,6 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
   {/each}
 </g>
   <g class = "Areas" >
-    
     {#each pathData as path, i}
       <circle 
       cx= {innerWidth/2 -115}
@@ -587,6 +614,28 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
         fill={path.fill}
         fill-opacity = {path.opacity}
       />
+      
+    {/each}
+  </g>
+  <g class = "areaLabels" >
+    {#each areaLabels as label, i}
+      <text
+      class="areaLabel"
+      x = {label.x + 4} 
+      y = {label.y + 3}
+      text-anchor = "end">
+      {label.value + "   -"}
+      </text> 
+    {/each}
+
+    {#each multipleLabels as label, i}
+      <text
+      class="areaLabel"
+      x = {label.x } 
+      y = {label.y}
+      text-anchor = "end">
+      {label.value}
+      </text> 
     {/each}
   </g>
   <g class = "Dots" >
@@ -701,7 +750,7 @@ viewBox = {[-innerWidth/2 + 50, -innerHeight/2 +30, innerWidth, innerHeight]}
     float: left;
   }
 
-  .label, .ticklabel{
+  .label, .ticklabel, .areaLabel{
     fill: white;
     font-size: 10px;
     word-wrap: break-word;
